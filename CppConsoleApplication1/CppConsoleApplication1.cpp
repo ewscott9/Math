@@ -5,17 +5,30 @@
 #include <ctime>
 using namespace std;
 
-void clear_input_buffer() {
+void clear_stream(FILE *stream) 
+{
     int c;
-    do {
-        c = getchar();
+    do 
+    {
+        c = getc(stream);
     } while (c != EOF && c != '\n');
 }
 
-int get_int() {
+int get_int() 
+{
     int value;
     scanf_s("%i", &value);
-    clear_input_buffer();
+    clear_stream(stdin);
+    return value;
+}
+
+int get_int(int min, int max) 
+{
+    int value;
+    scanf_s("%i", &value);
+    clear_stream(stdin);
+    if (value < min) value = min;
+    if (value > max) value = max;
     return value;
 }
 
@@ -80,20 +93,27 @@ int menu()
 int test_option() {
     int x = 0;
     int m = 0;
-    printf("Test Addition (1, 0): ");
-    x = get_int();
 
-    printf("Test Subtraction (1, 0): ");
-    m = get_int();
-    x = x + m * 0b0010;
+    while (x == 0) {
+        printf("Test Addition (1, 0): ");
+        x = get_int(0, 1);
 
-    printf("Test Multiplication (1, 0): ");
-    m = get_int();
-    x = x + m * 0b0100;
+        printf("Test Subtraction (1, 0): ");
+        m = get_int(0, 1);
+        x = x + m * 0b0010;
 
-    printf("Test Division (1, 0): ");
-    m = get_int();
-    x = x + m * 0b1000;
+        printf("Test Multiplication (1, 0): ");
+        m = get_int(0, 1);
+        x = x + m * 0b0100;
+
+        printf("Test Division (1, 0): ");
+        m = get_int(0, 1);
+        x = x + m * 0b1000;
+
+        if (x == 0) {
+            printf("(please select at least one test)\n");
+        }
+    }
 
     return x;
 }
@@ -106,14 +126,13 @@ int number_option(const char* text)
     return x;
 }
 
-void mathdrill(int op_mask, int left_max, int right_max)
+void math_drill(int op_mask, int left_max, int right_max)
 {
     srand(time(NULL));
     int c = 0;
     int t = time(NULL);
-    bool answer = true;
-
-    while (answer)
+    bool answer = false;
+    do
     {
         int a = rand() % (left_max - 1) + 2;
         int b = rand() % (right_max - 1) + 2;
@@ -124,7 +143,7 @@ void mathdrill(int op_mask, int left_max, int right_max)
             op = 0b1000 >> (rand() % 4);
         }
 
-        switch (op & op_mask)
+        switch (op)
         {
         case 0b0001: answer = test_add(a, b); break;
         case 0b0010: answer = test_sub(a, b); break;
@@ -136,7 +155,7 @@ void mathdrill(int op_mask, int left_max, int right_max)
         {
             c++;
         }
-    }
+    } while (answer);
 
     t = time(NULL) - t;
     printf("%i correct in %i seconds. %i answers per minute\n", c, t, 60 * c / t);
@@ -154,7 +173,7 @@ int main()
         switch (options) 
         {
         case 0: break;
-        case 1: mathdrill(op_mask, left_max, right_max); break;
+        case 1: math_drill(op_mask, left_max, right_max); break;
         case 2: op_mask = test_option(); break;
         case 3: 
             left_max = number_option("Left Max: ");
