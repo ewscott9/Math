@@ -1,15 +1,29 @@
-// Very simple and slightly broken math drill game for cmd
+// Very simple command line arithmatic drills
 
 #include <iostream>
 #include <cmath>
 #include <ctime>
 using namespace std;
 
+void clear_input_buffer() {
+    int c;
+    do {
+        c = getchar();
+    } while (c != EOF && c != '\n');
+}
+
+int get_int() {
+    int value;
+    scanf_s("%i", &value);
+    clear_input_buffer();
+    return value;
+}
+
 bool test_add(int a, int b)
 {
     int x = 0;
     printf("%i + %i = ", a, b);
-    scanf_s("%i", &x);
+    x = get_int();
     return a + b == x;
 }
 
@@ -23,7 +37,7 @@ bool test_sub(int a, int b)
         b = t;
     }
     printf("%i - %i = ", a, b);
-    scanf_s("%i", &x);
+    x = get_int();
     return a - b == x;
 }
 
@@ -31,7 +45,7 @@ bool test_mul(int a, int b)
 {
     int x = 0;
     printf("%i * %i = ", a, b);
-    scanf_s("%i", &x);
+    x = get_int();
     return a * b == x;
 }
 
@@ -46,20 +60,19 @@ bool test_div(int a, int b)
         b = t;
     }
     printf("%i / %i = ", a, b);
-    scanf_s("%i", &x);
+    x = get_int();
     if (a % b != 0) 
     {
         printf("%i mod %i = ", a, b);;
-        scanf_s("%i", &r);
+        r = get_int();
     }
     return a / b == x && a % b == r;
 }
 
 int menu() 
 {
-    int a;
     printf("Quit (0), Start (1), Test Options (2), Number Options (3): ");
-    scanf_s("%i", &a);
+    int a = get_int();
     return a;
 }
 
@@ -68,18 +81,18 @@ int test_option() {
     int x = 0;
     int m = 0;
     printf("Test Addition (1, 0): ");
-    scanf_s("%i", &x);
+    x = get_int();
 
     printf("Test Subtraction (1, 0): ");
-    scanf_s("%i", &m);
+    m = get_int();
     x = x + m * 0b0010;
 
     printf("Test Multiplication (1, 0): ");
-    scanf_s("%i", &m);
+    m = get_int();
     x = x + m * 0b0100;
 
     printf("Test Division (1, 0): ");
-    scanf_s("%i", &m);
+    m = get_int();
     x = x + m * 0b1000;
 
     return x;
@@ -89,7 +102,7 @@ int number_option(const char* text)
 {
     int x = 0;
     printf("%s", text);
-    scanf_s("%i", &x);
+    x = get_int();
     return x;
 }
 
@@ -141,12 +154,13 @@ int main()
         switch (options) 
         {
         case 0: break;
+        case 1: mathdrill(op_mask, left_max, right_max); break;
         case 2: op_mask = test_option(); break;
         case 3: 
             left_max = number_option("Left Max: ");
             right_max = number_option("Right Max: ");
             break;
-        default: mathdrill(op_mask, left_max, right_max);
+        default: printf("(invalid input)\n");
         }
     }
 }
