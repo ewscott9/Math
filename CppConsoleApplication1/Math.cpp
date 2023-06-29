@@ -1,16 +1,17 @@
 // Very simple command line arithmatic drills
 
-#include <iostream>
-#include <cmath>
+#include <cstdio>
+#include <cstdlib>
 #include <ctime>
+
 using namespace std;
 
-void clear_stream(FILE *stream) 
+void clear_stdin() 
 {
     int c;
     do 
     {
-        c = getc(stream);
+        c = getchar();
     } while (c != EOF && c != '\n');
 }
 
@@ -18,7 +19,7 @@ int get_int()
 {
     int value;
     scanf_s("%i", &value);
-    clear_stream(stdin);
+    clear_stdin();
     return value;
 }
 
@@ -26,7 +27,7 @@ int get_int(int min, int max)
 {
     int value;
     scanf_s("%i", &value);
-    clear_stream(stdin);
+    clear_stdin();
     if (value < min) value = min;
     if (value > max) value = max;
     return value;
@@ -82,60 +83,52 @@ bool test_div(int a, int b)
     return a / b == x && a % b == r;
 }
 
-int menu() 
+int menu(const char *text) 
 {
-    printf("Quit (0), Start (1), Test Options (2), Number Options (3): ");
+    printf("%s", text);
     int a = get_int();
     return a;
 }
 
 // Generates a selection mask
-int test_option() {
-    int x = 0;
-    int m = 0;
-
-    while (x == 0) {
+int test_option() 
+{
+    int mask = 0;
+    while (mask == 0) 
+    {
         printf("Test Addition (1, 0): ");
-        x = get_int(0, 1);
+        mask = get_int(0, 1);
 
         printf("Test Subtraction (1, 0): ");
-        m = get_int(0, 1);
-        x = x + m * 0b0010;
+        mask = mask + get_int(0, 1) * 0b0010;
 
         printf("Test Multiplication (1, 0): ");
-        m = get_int(0, 1);
-        x = x + m * 0b0100;
+        mask = mask + get_int(0, 1) * 0b0100;
 
         printf("Test Division (1, 0): ");
-        m = get_int(0, 1);
-        x = x + m * 0b1000;
+        mask = mask + get_int(0, 1) * 0b1000;
 
-        if (x == 0) {
-            printf("(please select at least one test)\n");
-        }
+        if (mask == 0) printf("(please select at least one test)\n");
     }
-
-    return x;
+    return mask;
 }
 
-int number_option(const char* text) 
+int number_option(const char *text) 
 {
-    int x = 0;
     printf("%s", text);
-    x = get_int();
-    return x;
+    return get_int();
 }
 
-void math_drill(int op_mask, int left_max, int right_max)
+void math_drill(int op_mask, int left_min, int left_max, int right_min, int right_max)
 {
+    
     srand(time(NULL));
     int c = 0;
     int t = time(NULL);
-    bool answer = false;
-    do
+    for (bool answer = true; answer == true;)
     {
-        int a = rand() % (left_max - 1) + 2;
-        int b = rand() % (right_max - 1) + 2;
+        int a = rand() % (left_max - 1) + left_min;
+        int b = rand() % (right_max - 1) + right_min;
 
         // randomly choose a test based on option selection
         int op = 0;
@@ -155,33 +148,39 @@ void math_drill(int op_mask, int left_max, int right_max)
         {
             c++;
         }
-    } while (answer);
+    }
 
-    t = time(NULL) - t;
+    t = time(NULL) - t + 1;
     printf("%i correct in %i seconds. %i answers per minute\n", c, t, 60 * c / t);
 }
 
 int main()
 {
-    int options = 1;
+
     int op_mask = 0b1111;
+    int left_min = 2;
     int left_max = 9;
+    int right_min = 2;
     int right_max = 9;
-    while (options != 0)
+    for (int options = 1;  options != 0;)
     {
-        options = menu();
+        options = menu("Quit (0), Start (1), Test Options (2), Number Min (3), Number Max (4): ");
         switch (options) 
         {
         case 0: break;
-        case 1: math_drill(op_mask, left_max, right_max); break;
+        case 1: math_drill(op_mask, left_min, left_max, right_min, right_max); break;
         case 2: op_mask = test_option(); break;
-        case 3: 
+        case 3:
+            left_min = number_option("Left Min: ");
+            right_min = number_option("Right Min: ");
+            break;
+        case 4: 
             left_max = number_option("Left Max: ");
             right_max = number_option("Right Max: ");
             break;
         default: printf("(invalid input)\n");
-        }
-    }
+        } 
+    } 
 }
 
 
