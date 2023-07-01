@@ -121,7 +121,7 @@ int test_option()
     return mask;
 }
 
-#pragma warning (disable : 4996) // required because ms dislikes fopen for some reason.
+#pragma warning (disable : 4996)
 void save_stats(char stats[], char filename[]) {
     FILE* file;
     file = fopen(filename, "a");
