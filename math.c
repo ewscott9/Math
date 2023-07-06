@@ -1,5 +1,4 @@
 // Very simple command line arithmatic drills
-
 #include <stdio.h>
 #include <stdlib.h>
 #include <time.h>
@@ -14,25 +13,38 @@ void clear_stdin()
     do c = getchar(); while (c != EOF && c != '\n');
 }
 
+void get_string(char * out_string, int out_string_size) 
+{
+    printf("%i %s ", strlen(out_string), out_string);
+    fgets(out_string, out_string_size, stdin);
+    int len = strlen(out_string);
+    if (out_string[len - 1] == '\n') out_string[len - 1] = '\0';
+    else clear_stdin();
+}
+
+
 // gets int value, and clears stdin afterwards
-// if input starts with a number, reads input until SIZE - 1 characters or a non number and returns the number or LONG_MIN or LONG_MAX if number was too large
+// if input starts with a number, reads input until READ_SIZE - 1 characters or a non number and returns the number or LONG_MIN or LONG_MAX if number was too large
 // if input starts with a letter, returns LONG_MIN.
 int get_int()
 {
-    enum { SIZE = 20 };
+    enum { READ_SIZE = 20 };
 
     // grab characters from stdin, if you can't get them all in one go, throw the rest away.
-    char text[SIZE];
-    fgets(text, SIZE, stdin);
-    if (text[strlen(text) - 1] != '\n') clear_stdin();
+    char text[READ_SIZE] = "";
+    fgets(text, READ_SIZE, stdin);
 
-    // if theres a number at the front of the string return that value
-    char* pend;
-    int value = strtol(text, &pend, 0);
-    if (value == 0 && pend[0] != '\n') value = LONG_MIN;
-
-    //printf("%i ", value);
-
+    // if the text that was read in doesn't start with a number, just return LONG_MIN
+    int value = LONG_MIN;
+    if ('0' <= text[0] && text[0] <= '9') 
+    {
+        if (text[strlen(text) - 1] != '\n') clear_stdin();
+        // if theres a number at the front of the string return that value
+        char* pend;
+        value = strtol(text, &pend, 0);
+        if (value == 0 && pend[0] != '\n') value = LONG_MIN;
+        //printf("%i ", value);
+    }
     return value;
 }
 
@@ -43,6 +55,27 @@ int get_int_ranged(int min, int max)
     if (value < min) value = min;
     if (value > max) value = max;
     return value;
+}
+
+// prints a message, receives an input, and returns a number.
+int prompt_int(const char* text)
+{
+    fputs(text, stdout);
+    return get_int();
+}
+
+// prints a message, receives an input, and returns a number.
+int prompt_int_ranged(const char* text, int min, int max)
+{
+    fputs(text, stdout);
+    return get_int_ranged(min, max);
+}
+
+// prints a message, receives an input, and returns a number.
+void prompt_string(const char* prompt, char* out_string, int out_string_size)
+{
+    fputs(prompt, stdout);
+    get_string(out_string, out_string_size);
 }
 
 // Following functions test arithmetic add, sub, mul, div
@@ -92,20 +125,6 @@ bool test_div(int a, int b)
     return x;
 }
 
-// prints a message, receives an input, and returns a number.
-int prompt_int(const char* text)
-{
-    fputs(text, stdout);
-    return get_int();
-}
-
-// prints a message, receives an input, and returns a number.
-int prompt_int_ranged(const char* text, int min, int max)
-{
-    fputs(text, stdout);
-    return get_int_ranged(min, max);
-}
-
 // Generates a selection mask
 int test_option()
 {
@@ -122,21 +141,23 @@ int test_option()
 }
 
 #pragma warning (disable : 4996)
-void save_stats(char stats[], char filename[]) {
+void save_stats(char stats[], char filename[]) 
+{
     FILE* file;
     file = fopen(filename, "a");
-    if (file != NULL) {
+    if (file != NULL) 
+    {
         fputs(stats, file);
         fclose(file);
     }
 }
 
 // Tests users arithmetic skills.
-void math_drill(int op_mask, int left_min, int left_max, int right_min, int right_max)
+void math_drill(int op_mask, char * name, int left_min, int left_max, int right_min, int right_max)
 {
     int c = 0;
     time_t t = time(NULL);
-    srand(t);
+    srand((int) t);
     for (bool answer = true; answer == true;)
     {
         int a = rand() % (left_max - 1) + left_min;
@@ -166,12 +187,19 @@ void math_drill(int op_mask, int left_min, int left_max, int right_min, int righ
     char* timestamp = asctime(timeinfo);
     if (timestamp != NULL) timestamp[strlen(timestamp) - 1] = '\0';
 
-    // Save stats to 
-    enum{ SIZE = 200 };
-    char stats[SIZE];
-    snprintf(stats, SIZE, "%s: %i correct in %i seconds. %i answers per minute.\n", timestamp, c, (int) t, 60 * c / (int) t);
+    // Save stats to file and print it to cmd
+    enum{ STATS_SIZE = 400 };
+    char stats[STATS_SIZE];
+    snprintf(stats, STATS_SIZE, "%s: %s: %i correct in %i seconds. %i answers per minute.\n", name, timestamp, c, (int) t, 60 * c / (int) t);
     save_stats(stats, "stats.txt");
     fputs(stats, stdout);
+}
+
+void init_string(char* string, int string_size) {
+    for (int i = 0; i < string_size; i++) {
+        string[i] = ' ';
+    }
+    string[string_size - 1] = '\0';
 }
 
 int main()
@@ -183,16 +211,22 @@ int main()
     int right_min = 2;
     int right_max = 9;
     int options = 0;
+    enum{ NAME_SIZE = 200 };
+    char name[NAME_SIZE];
+    init_string(name, NAME_SIZE);
+
+    prompt_string("Enter Your Name: ", name, NAME_SIZE);
     do
     {
-        options = prompt_int("Quit (0), Start (1), Test Options (2), Number Min (3), Number Max (4): ");
+        options = prompt_int("Quit (0), Start (1), Test Options (2), Number Min (3), Number Max (4), Change Name (5): ");
         switch (options)
         {
         case 0: printf("Goodbye!\n"); break;
-        case 1: math_drill(op_mask, left_min, left_max, right_min, right_max); break;
+        case 1: math_drill(op_mask, name, left_min, left_max, right_min, right_max); break;
         case 2: op_mask = test_option(); break;
         case 3: left_min = prompt_int("Left Min: "); right_min = prompt_int("Right Min: "); break;
         case 4: left_max = prompt_int("Left Max: "); right_max = prompt_int("Right Max: "); break;
+        case 5: prompt_string("Enter Your Name: ", name, NAME_SIZE); break;
         default: printf("(invalid input)\n");
         }
     } while (options != 0);
