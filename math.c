@@ -41,14 +41,14 @@ int get_int()
     fgets(text, READ_SIZE, stdin);
 
     // if the text that was read in doesn't start with a number, just return LONG_MIN
-    int value = (int) LONG_MIN;
-    if ('0' <= text[0] && text[0] <= '9') 
+    int value = INT_MIN;
+    if (text[0] >= '0' && text[0] <= '9') 
     {
         if (text[strlen(text) - 1] != '\n') clear_stdin();
         // if theres a number at the front of the string return that value
         char* pend;
-        value = strtol(text, &pend, 0);
-        if (value == 0 && pend[0] != '\n') value = (int) LONG_MIN;
+        value = (int) strtol(text, &pend, 0);
+        if (value == 0 && pend[0] != '\n') value = INT_MIN;
         //printf("%i ", value);
     }
     return value;
