@@ -4,6 +4,13 @@
 #include <time.h>
 #include <stdbool.h>
 #include <string.h>
+#include <limits.h>
+
+enum IO_Const
+{
+    MAX_READ = 20,
+    MAX_WRITE = 200
+};
 
 // clears stdin 
 // used after getting numbers from stdin, incase user accidentally entered non numeric characters after
@@ -15,7 +22,6 @@ void clear_stdin()
 
 void get_string(char * out_string, int out_string_size) 
 {
-    printf("%i %s ", strlen(out_string), out_string);
     fgets(out_string, out_string_size, stdin);
     int len = strlen(out_string);
     if (out_string[len - 1] == '\n') out_string[len - 1] = '\0';
@@ -28,21 +34,21 @@ void get_string(char * out_string, int out_string_size)
 // if input starts with a letter, returns LONG_MIN.
 int get_int()
 {
-    enum { READ_SIZE = 20 };
+    enum { READ_SIZE = MAX_READ };
 
     // grab characters from stdin, if you can't get them all in one go, throw the rest away.
     char text[READ_SIZE] = "";
     fgets(text, READ_SIZE, stdin);
 
     // if the text that was read in doesn't start with a number, just return LONG_MIN
-    int value = LONG_MIN;
+    int value = (int) LONG_MIN;
     if ('0' <= text[0] && text[0] <= '9') 
     {
         if (text[strlen(text) - 1] != '\n') clear_stdin();
         // if theres a number at the front of the string return that value
         char* pend;
         value = strtol(text, &pend, 0);
-        if (value == 0 && pend[0] != '\n') value = LONG_MIN;
+        if (value == 0 && pend[0] != '\n') value = (int) LONG_MIN;
         //printf("%i ", value);
     }
     return value;
@@ -211,8 +217,8 @@ int main()
     int right_min = 2;
     int right_max = 9;
     int options = 0;
-    enum{ NAME_SIZE = 200 };
-    char name[NAME_SIZE];
+    enum{ NAME_SIZE = 50 };
+    char name[NAME_SIZE] = "";
     init_string(name, NAME_SIZE);
 
     prompt_string("Enter Your Name: ", name, NAME_SIZE);
@@ -231,5 +237,6 @@ int main()
         }
     } while (options != 0);
 }
+
 
 
