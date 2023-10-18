@@ -20,7 +20,7 @@ void clear_stdin()
     do c = getchar(); while (c != EOF && c != '\n');
 }
 
-void get_string(char * out_string, int out_string_size) 
+void get_string(char* out_string, int out_string_size)
 {
     fgets(out_string, out_string_size, stdin);
     int len = strlen(out_string);
@@ -42,12 +42,12 @@ int get_int()
 
     // if the text that was read in doesn't start with a number, just return LONG_MIN
     int value = INT_MIN;
-    if (text[0] >= '0' && text[0] <= '9') 
+    if (text[0] >= '0' && text[0] <= '9')
     {
         if (text[strlen(text) - 1] != '\n') clear_stdin();
         // if theres a number at the front of the string return that value
         char* pend;
-        value = (int) strtol(text, &pend, 0);
+        value = (int)strtol(text, &pend, 0);
         if (value == 0 && pend[0] != '\n') value = INT_MIN;
         //printf("%i ", value);
     }
@@ -104,6 +104,31 @@ bool test_sub(int a, int b)
     return a - b == get_int();
 }
 
+// calculate the greatest common divisor
+int gcd(a, b)
+{
+    if (a < b)
+    {
+        int t = b;
+        b = a;
+        a = t;
+    }
+
+    while (b > 0)
+    {
+        int r = a % b;
+        a = b;
+        b = r;
+    }
+    return a;
+}
+
+bool test_gcd(a, b)
+{
+    printf("GCD(%i, %i) = ", a, b);
+    return gcd(a, b) == get_int();
+}
+
 bool test_mul(int a, int b)
 {
     printf("%i * %i = ", a, b);
@@ -141,17 +166,18 @@ int test_option()
         mask += prompt_int_ranged("Test Subtraction (1, 0): ", 0, 1) << 1;
         mask += prompt_int_ranged("Test Multiplication (1, 0): ", 0, 1) << 2;
         mask += prompt_int_ranged("Test Division (1, 0): ", 0, 1) << 3;
+        mask += prompt_int_ranged("Test GCD (1, 0): ", 0, 1) << 4;
         if (mask == 0) printf("(please select at least one test)\n");
     } while (mask == 0);
     return mask;
 }
 
 #pragma warning (disable : 4996)
-void save_stats(char stats[], char filename[]) 
+void save_stats(char stats[], char filename[])
 {
     FILE* file;
     file = fopen(filename, "a");
-    if (file != NULL) 
+    if (file != NULL)
     {
         fputs(stats, file);
         fclose(file);
@@ -159,11 +185,11 @@ void save_stats(char stats[], char filename[])
 }
 
 // Tests users arithmetic skills.
-void math_drill(int op_mask, char * name, int left_min, int left_max, int right_min, int right_max)
+void math_drill(int op_mask, int question_types, char* name, int left_min, int left_max, int right_min, int right_max)
 {
     int c = 0;
     time_t t = time(NULL);
-    srand((int) t);
+    srand((int)t);
     for (bool answer = true; answer == true;)
     {
         int a = rand() % (left_max - 1) + left_min;
@@ -171,14 +197,15 @@ void math_drill(int op_mask, char * name, int left_min, int left_max, int right_
 
         // randomly choose a test based on option selection
         int op = 0;
-        do op = 1 << (rand() % 4); while ((op & op_mask) == 0);
+        do op = 1 << (rand() % question_types); while ((op & op_mask) == 0);
 
         switch (op)
         {
-        case 0b0001: answer = test_add(a, b); break;
-        case 0b0010: answer = test_sub(a, b); break;
-        case 0b0100: answer = test_mul(a, b); break;
-        case 0b1000: answer = test_div(a, b); break;
+        case 0b00001: answer = test_add(a, b); break;
+        case 0b00010: answer = test_sub(a, b); break;
+        case 0b00100: answer = test_mul(a, b); break;
+        case 0b01000: answer = test_div(a, b); break;
+        case 0b10000: answer = test_gcd(a, b); break;
         }
 
         if (answer) c++;
@@ -194,9 +221,9 @@ void math_drill(int op_mask, char * name, int left_min, int left_max, int right_
     if (timestamp != NULL) timestamp[strlen(timestamp) - 1] = '\0';
 
     // Save stats to file and print it to cmd
-    enum{ STATS_SIZE = 400 };
+    enum { STATS_SIZE = 400 };
     char stats[STATS_SIZE];
-    snprintf(stats, STATS_SIZE, "%s: %s: %i correct in %i seconds. %i answers per minute.\n", name, timestamp, c, (int) t, 60 * c / (int) t);
+    snprintf(stats, STATS_SIZE, "%s: %s: %i correct in %i seconds. %i answers per minute.\n", name, timestamp, c, (int)t, 60 * c / (int)t);
     save_stats(stats, "stats.txt");
     fputs(stats, stdout);
 }
@@ -211,14 +238,15 @@ void init_string(char* string, int string_size) {
 int main()
 {
     printf("Welcome to Math Drills!\n");
-    int op_mask = 0b1111;
+    int op_mask = 0b01111;
     int left_min = 2;
     int left_max = 9;
     int right_min = 2;
     int right_max = 9;
     int options = 0;
-    enum{ NAME_SIZE = 50 };
+    enum { NAME_SIZE = 50 };
     char name[NAME_SIZE] = "";
+    enum { QUESTION_TYPES = 5 };
     init_string(name, NAME_SIZE);
 
     prompt_string("Enter Your Name: ", name, NAME_SIZE);
@@ -228,7 +256,7 @@ int main()
         switch (options)
         {
         case 0: printf("Goodbye!\n"); break;
-        case 1: math_drill(op_mask, name, left_min, left_max, right_min, right_max); break;
+        case 1: math_drill(op_mask, QUESTION_TYPES, name, left_min, left_max, right_min, right_max); break;
         case 2: op_mask = test_option(); break;
         case 3: left_min = prompt_int("Left Min: "); right_min = prompt_int("Right Min: "); break;
         case 4: left_max = prompt_int("Left Max: "); right_max = prompt_int("Right Max: "); break;
@@ -237,6 +265,3 @@ int main()
         }
     } while (options != 0);
 }
-
-
-
