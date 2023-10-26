@@ -105,7 +105,7 @@ bool test_sub(int a, int b)
 }
 
 // calculate the greatest common divisor
-int gcd(a, b)
+int gcd(int a, int b)
 {
     if (a < b)
     {
@@ -123,7 +123,7 @@ int gcd(a, b)
     return a;
 }
 
-bool test_gcd(a, b)
+bool test_gcd(int a, int b)
 {
     printf("GCD(%i, %i) = ", a, b);
     return gcd(a, b) == get_int();
