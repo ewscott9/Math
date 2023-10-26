@@ -185,15 +185,16 @@ void save_stats(char stats[], char filename[])
 }
 
 // Tests users arithmetic skills.
-void math_drill(int op_mask, int question_types, char* name, int left_min, int left_max, int right_min, int right_max, int questions_max)
+void math_drill(int op_mask, int question_types, char* name, int left_min, int left_max, int right_min, int right_max, int questions_max, int show_stats)
 {
     int c = 0;
     time_t t = time(NULL);
     time_t t_now = time(NULL);
     int t_delta = 1;
     srand((int)t);
-    if (questions_max != -1) printf("\nPlease complete the next %i questions:\n", questions_max);
-    for (bool answer = true; answer == true && c != questions_max;)
+    if (questions_max > 0) printf("\nPlease complete the next %i questions:\n", questions_max);
+    else printf("\n");
+    for (bool answer = true; answer == true && (questions_max == 0 || c != questions_max);)
     {
         int a = rand() % (left_max - 1) + left_min;
         int b = rand() % (right_max - 1) + right_min;
@@ -218,7 +219,12 @@ void math_drill(int op_mask, int question_types, char* name, int left_min, int l
 
             // Let the player know some stats every 10 questions
             t_delta = (int)(t_now - t) + 1;
-            if (c % 10 == 0) printf("\n%i correct in %i\' %i\". %i answers per minute.\n", c, t_delta / 60, t_delta % 60, 60 * c / t_delta);
+
+
+            if (show_stats != 0 && c % show_stats == 0) {
+                printf("\n%i correct in %i\' %i\". %i answers per minute.\n", c, t_delta / 60, t_delta % 60, 60 * c / t_delta);
+            }
+
         }
     }
 
@@ -232,6 +238,7 @@ void math_drill(int op_mask, int question_types, char* name, int left_min, int l
     char stats[STATS_SIZE];
     snprintf(stats, STATS_SIZE, "%s: %s: %i correct in %i\' %i\". %i answers per minute.\n", name, timestamp, c, t_delta / 60, t_delta % 60, 60 * c / t_delta);
     save_stats(stats, "stats.txt");
+    printf("\n");
     fputs(stats, stdout);
 }
 
@@ -252,6 +259,7 @@ int main()
     int right_max = 9;
     int questions_max = 100;
     int options = 0;
+    int show_stats = 10;
     enum { NAME_SIZE = 50 };
     char name[NAME_SIZE] = "";
     enum { QUESTION_TYPES = 5 };
@@ -260,16 +268,17 @@ int main()
     prompt_string("Enter Your Name: ", name, NAME_SIZE);
     do
     {
-        options = prompt_int("Quit (0), Start (1), Test Options (2), Number Min (3), Number Max (4), Question Limit (5), Change Name (6): ");
+        options = prompt_int("Quit (0), Start (1), Test Options (2), Number Min (3), Number Max (4), Question Limit (5), Show Stats (6), Change Name (7): ");
         switch (options)
         {
         case 0: printf("Goodbye!\n"); break;
-        case 1: math_drill(op_mask, QUESTION_TYPES, name, left_min, left_max, right_min, right_max, questions_max); break;
+        case 1: math_drill(op_mask, QUESTION_TYPES, name, left_min, left_max, right_min, right_max, questions_max, show_stats); break;
         case 2: op_mask = test_option(); break;
         case 3: left_min = prompt_int("Left Min: "); right_min = prompt_int("Right Min: "); break;
         case 4: left_max = prompt_int("Left Max: "); right_max = prompt_int("Right Max: "); break;
-        case 5: questions_max = prompt_int("Question Limit (-1 to disable): "); break;
-        case 6: prompt_string("Enter Your Name: ", name, NAME_SIZE); break;
+        case 5: questions_max = prompt_int("Question Limit (0 to disable): "); break;
+        case 6: show_stats = prompt_int("Show stats after every X questions (0 to disable): "); break;
+        case 7: prompt_string("Enter Your Name: ", name, NAME_SIZE); break;
         default: printf("(invalid input)\n");
         }
     } while (options != 0);
