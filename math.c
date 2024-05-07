@@ -31,7 +31,7 @@ void get_string(char* out_string, int out_string_size)
 
 // gets int value, and clears stdin afterwards
 // if input starts with a number, reads input until READ_SIZE - 1 characters or a non number and returns the number or LONG_MIN or LONG_MAX if number was too large
-// if input starts with a letter, returns LONG_MIN.
+// if input starts with a letter, returns INT_MIN.
 int get_int()
 {
     enum { READ_SIZE = MAX_READ };
@@ -39,17 +39,26 @@ int get_int()
     // grab characters from stdin, if you can't get them all in one go, throw the rest away.
     char text[READ_SIZE] = "";
     fgets(text, READ_SIZE, stdin);
-
-    // if the text that was read in doesn't start with a number, just return LONG_MIN
+    
+    //printf("%i\n", (int) strlen(text)); //debug
+    
+    // if the text that was read in doesn't start with a number, just return INT_MIN
     int value = INT_MIN;
-    if (text[0] >= '0' && text[0] <= '9')
+    bool negitive_number = false;
+    bool positive_number = false;
+
+    if (strlen(text) >= 2) negitive_number = (text[0] == '-' && text[1] >= '0' && text[1] <= '9');
+    positive_number = text[0] >= '0' && text[0] <= '9';
+
+    //printf("%d, %d\n", negitive_number, positive_number); //debug
+
+    if (positive_number || negitive_number)
     {
         if (text[strlen(text) - 1] != '\n') clear_stdin();
         // if theres a number at the front of the string return that value
         char* pend;
         value = (int)strtol(text, &pend, 0);
         if (value == 0 && pend[0] != '\n') value = INT_MIN;
-        //printf("%i ", value);
     }
     return value;
 }
@@ -88,19 +97,16 @@ void prompt_string(const char* prompt, char* out_string, int out_string_size)
 // they return true or false depending on the correctness of the user input
 bool test_add(int a, int b)
 {
-    printf("%i + %i = ", a, b);
+    printf("%d + %d = ", a, b);
     return a + b == get_int();
 }
 
+// I shift a by 10 if a < b to avoid negative answers when a and b > 0.
 bool test_sub(int a, int b)
 {
-    if (a < b)
-    {
-        int t = a;
-        a = b;
-        b = t;
-    }
-    printf("%i - %i = ", a, b);
+    if (a < b) a += 10;
+    
+    printf("%d - %d = ", a, b);
     return a - b == get_int();
 }
 
@@ -125,32 +131,38 @@ int gcd(int a, int b)
 
 bool test_gcd(int a, int b)
 {
-    printf("GCD(%i, %i) = ", a, b);
+    printf("GCD(%d, %d) = ", a, b);
     return gcd(a, b) == get_int();
 }
 
 bool test_mul(int a, int b)
 {
-    printf("%i * %i = ", a, b);
+    printf("%d * %d = ", a, b);
     return a * b == get_int();
 }
 
 bool test_div(int a, int b)
 {
+    // integer division of a / b is trivial when a < b so avoid that case.
     bool x = false;
-    if (a < b)
+    if (abs(a) < abs(b))
     {
         int t = a;
         a = b;
         b = t;
     }
+    
+    // avoid div by 0.
+    if (b == 0) b++;
 
-    printf("%i / %i = ", a, b);
+    printf("%d / %d = ", a, b);
     x = (a / b == get_int());
-
+    
+    a = abs(a)
+    b = abs(b)
     if (x && a % b != 0)
     {
-        printf("%i mod %i = ", a, b);;
+        printf("%d mod %d = ", a, b);;
         x &= (a % b == get_int());
     }
     return x;
@@ -192,13 +204,15 @@ void math_drill(int op_mask, int question_types, char* name, int left_min, int l
     time_t t_now = time(NULL);
     int t_delta = 1;
     srand((int)t);
-    if (questions_max > 0) printf("\nPlease complete the next %i questions:\n", questions_max);
+    if (questions_max > 0) printf("\nPlease complete the next %d questions:\n", questions_max);
     else printf("\n");
     for (bool answer = true; answer == true && (questions_max == 0 || c != questions_max);)
     {
-        int a = rand() % (left_max - 1) + left_min;
-        int b = rand() % (right_max - 1) + right_min;
+        int a = (rand() % (left_max - 1)) + left_min;
+        int b = (rand() % (right_max - 1)) + right_min;
 
+        printf("%d, %d, %d, %d\n", left_min, left_max, right_min, right_max);
+    
         // randomly choose a test based on option selection
         int op = 0;
         do op = 1 << (rand() % question_types); while ((op & op_mask) == 0);
@@ -222,7 +236,7 @@ void math_drill(int op_mask, int question_types, char* name, int left_min, int l
 
 
             if (show_stats != 0 && c % show_stats == 0) {
-                printf("\n%i correct in %i\' %i\". %i answers per minute.\n", c, t_delta / 60, t_delta % 60, 60 * c / t_delta);
+                printf("\n%d correct in %d\' %d\". %d answers per minute.\n", c, t_delta / 60, t_delta % 60, 60 * c / t_delta);
             }
 
         }
@@ -236,7 +250,7 @@ void math_drill(int op_mask, int question_types, char* name, int left_min, int l
     // Save stats to file and print it to cmd
     enum { STATS_SIZE = 400 };
     char stats[STATS_SIZE];
-    snprintf(stats, STATS_SIZE, "%s: %s: %i correct in %i\' %i\". %i answers per minute.\n", name, timestamp, c, t_delta / 60, t_delta % 60, 60 * c / t_delta);
+    snprintf(stats, STATS_SIZE, "%s: %s: %d correct in %d\' %d\". %d answers per minute.\n", name, timestamp, c, t_delta / 60, t_delta % 60, 60 * c / t_delta);
     save_stats(stats, "stats.txt");
     printf("\n");
     fputs(stats, stdout);
@@ -253,11 +267,11 @@ int main()
 {
     printf("Welcome to Math Drills!\n");
     int op_mask = 0b01111;
-    int left_min = 2;
-    int left_max = 9;
-    int right_min = 2;
-    int right_max = 9;
-    int questions_max = 100;
+    int left_min = 0;
+    int left_max = 10;
+    int right_min = 0;
+    int right_max = 10;
+    int questions_max = 50;
     int options = 0;
     int show_stats = 10;
     enum { NAME_SIZE = 50 };
