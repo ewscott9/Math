@@ -12,7 +12,7 @@ enum IO_Const
     MAX_WRITE = 200
 };
 
-// clears stdin 
+// clears stdin
 // used after getting numbers from stdin, incase user accidentally entered non numeric characters after
 void clear_stdin()
 {
@@ -39,9 +39,9 @@ int get_int()
     // grab characters from stdin, if you can't get them all in one go, throw the rest away.
     char text[READ_SIZE] = "";
     fgets(text, READ_SIZE, stdin);
-    
+
     //printf("%i\n", (int) strlen(text)); //debug
-    
+
     // if the text that was read in doesn't start with a number, just return INT_MIN
     int value = INT_MIN;
     bool negitive_number = false;
@@ -104,8 +104,10 @@ bool test_add(int a, int b)
 // I shift a by 10 if a < b to avoid negative answers when a and b > 0.
 bool test_sub(int a, int b)
 {
-    if (a < b) a += 10;
-    
+    if (a < 0 || b < 0);
+    else if (a < b) a += 10;
+
+
     printf("%d - %d = ", a, b);
     return a - b == get_int();
 }
@@ -151,15 +153,15 @@ bool test_div(int a, int b)
         a = b;
         b = t;
     }
-    
+
     // avoid div by 0.
     if (b == 0) b++;
 
     printf("%d / %d = ", a, b);
     x = (a / b == get_int());
-    
-    a = abs(a)
-    b = abs(b)
+
+    a = abs(a);
+    b = abs(b);
     if (x && a % b != 0)
     {
         printf("%d mod %d = ", a, b);;
@@ -196,6 +198,12 @@ void save_stats(char stats[], char filename[])
     }
 }
 
+int rand_range(int min, int max)
+{
+    return rand() % (max - min + 1) + min;
+}
+
+
 // Tests users arithmetic skills.
 void math_drill(int op_mask, int question_types, char* name, int left_min, int left_max, int right_min, int right_max, int questions_max, int show_stats)
 {
@@ -208,11 +216,11 @@ void math_drill(int op_mask, int question_types, char* name, int left_min, int l
     else printf("\n");
     for (bool answer = true; answer == true && (questions_max == 0 || c != questions_max);)
     {
-        int a = (rand() % (left_max - 1)) + left_min;
-        int b = (rand() % (right_max - 1)) + right_min;
+        int a = rand_range(left_min, left_max);
+        int b = rand_range(right_min, right_max);
 
-        printf("%d, %d, %d, %d\n", left_min, left_max, right_min, right_max);
-    
+        //printf("%d, %d, %d, %d, a: %d, b: %d\n", left_min, left_max, right_min, right_max, a, b); // debug
+
         // randomly choose a test based on option selection
         int op = 0;
         do op = 1 << (rand() % question_types); while ((op & op_mask) == 0);
