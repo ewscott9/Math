@@ -243,7 +243,8 @@ void math_drill(int op_mask, int question_types, char* name, int left_min, int l
             t_delta = (int)(t_now - t) + 1;
 
 
-            if (show_stats != 0 && c % show_stats == 0) {
+            if (show_stats != 0 && c % show_stats == 0) 
+	    {
                 printf("\n%d correct in %d\' %d\". %d answers per minute.\n", c, t_delta / 60, t_delta % 60, 60 * c / t_delta);
             }
 
@@ -265,7 +266,8 @@ void math_drill(int op_mask, int question_types, char* name, int left_min, int l
 }
 
 void init_string(char* string, int string_size) {
-    for (int i = 0; i < string_size; i++) {
+    for (int i = 0; i < string_size; i++) 
+    {
         string[i] = ' ';
     }
     string[string_size - 1] = '\0';
