@@ -281,7 +281,7 @@ int main()
     int left_max = 10;
     int right_min = 0;
     int right_max = 10;
-    int questions_max = 50;
+    int questions_max = 20;
     int options = 0;
     int show_stats = 10;
     enum { NAME_SIZE = 50 };
