@@ -188,7 +188,8 @@ bool test_div_num_den(int a, int b)
     // avoid div by 0.
     if (b == 0) b++;
 
-    printf("%d / %d = ", a, b);
+    printf("%d / %d = \n", a, b);
+    printf("quotient = ");
     x = (a / b == get_int());
 
     a = abs(a);
@@ -197,6 +198,8 @@ bool test_div_num_den(int a, int b)
     {
 	int r = a % b;
         printf("remainder = ", a, b);
+        x &= (r == get_int());
+        printf("gcd(%d,%d) = ", r, b);
         x &= (r == get_int());
 	printf("reduced numerator = ");
         x &= (r / gcd(r,b) == get_int());
@@ -266,7 +269,7 @@ void math_drill(int op_mask, int question_types, char* name, int left_min, int l
         case 0b00001: answer = test_add(a, b); break;
         case 0b00010: answer = test_sub(a, b); break;
         case 0b00100: answer = test_mul(a, b); break;
-        case 0b01000: answer = test_div(a, b); break;
+        case 0b01000: answer = test_div_num_den(a, b); break;
         case 0b10000: answer = test_gcd(a, b); break;
         }
 
