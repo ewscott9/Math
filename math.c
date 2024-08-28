@@ -188,7 +188,7 @@ bool test_div_num_den(int a, int b)
 	x &= (g == get_int());
     }
 
-    if (abs(a) > abs(b))
+    if (abs(a) >= abs(b))
     {
     	printf("quotient = ");
     	x &= (a / b == get_int());
