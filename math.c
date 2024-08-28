@@ -173,38 +173,43 @@ bool test_div(int a, int b)
 
 bool test_div_num_den(int a, int b)
 {
-    // integer division of a / b is trivial when a < b so avoid that case.
-    bool x = false;
-
-    /* shouldn't need this
-    if (abs(a) < abs(b))
-    {
-        int t = a;
-        a = b;
-        b = t;
-    }
-    */
+    bool x = true;
 
     // avoid div by 0.
     if (b == 0) b++;
 
+
     printf("%d / %d\n", a, b);
-    printf("quotient = ");
-    x = (a / b == get_int());
+
+    int r = a % b;
+    int g = gcd(a, b);
+    if (g != 1) {
+	printf("gcd(%d, %d) = ", r, b);
+	x &= (g == get_int());
+    }
+
+    if (abs(a) > abs(b))
+    {
+    	printf("quotient = ");
+    	x &= (a / b == get_int());
+    }
 
     a = abs(a);
     b = abs(b);
-    if (x && a % b != 0)
+    if (x && r != 0)
     {
-	int r = a % b;
-        printf("remainder = ", a, b);
-        x &= (r == get_int());
-        printf("gcd(%d,%d) = ", r, b);
-        x &= (r == get_int());
-	printf("reduced numerator = ");
-        x &= (r / gcd(r,b) == get_int());
-	printf("reduced denominator = ");
-        x &= (b / gcd(r,b) == get_int());
+	if (abs(a) > abs(b))
+	{
+	    printf("remainder = ", a, b);
+	    x &= (r == get_int());
+	}
+
+	printf("frational part\n");
+	printf("numerator = ");
+        x &= ((r / g) == get_int());
+
+	printf("denominator = ");
+        x &= ((b / g) == get_int());
     }
     return x;
 }
