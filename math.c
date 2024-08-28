@@ -115,6 +115,7 @@ bool test_sub(int a, int b)
 // calculate the greatest common divisor
 int gcd(int a, int b)
 {
+    a = abs(a); b = abs(b);
     if (a < b)
     {
         int t = b;
@@ -173,13 +174,24 @@ bool test_div(int a, int b)
 
 bool test_div_num_den(int a, int b)
 {
+    int sign = a*b/abs(a*b);
+    a = abs(a);
+    b = abs(b);
+
+    // the answers truth value
     bool x = true;
 
     // avoid div by 0.
     if (b == 0) b++;
 
-
-    printf("%d / %d:\n", a, b);
+    if (sign == 1)
+    {
+	printf("%d / %d:\n", a, b);
+    } 
+    else 
+    {
+	printf("-%d / %d:\n", a, b);
+    }
 
     int r = a % b;
     int g = gcd(a, b);
@@ -189,19 +201,17 @@ bool test_div_num_den(int a, int b)
 	x &= (g == get_int());
     }
 
-    if (abs(a) >= abs(b) || a == 0)
+    if (a >= b || a == 0)
     {
-    	printf(" quotient = ");
+    	printf(" whole part = ");
     	x &= (a / b == get_int());
     }
 
-    a = abs(a);
-    b = abs(b);
-    if (x && r != 0)
+    if ((x == 1) && (r != 0))
     {
-	if (abs(a) > abs(b))
+	if (a > b)
 	{
-	    printf(" remainder = ", a, b);
+	    printf(" remainder = ");
 	    x &= (r == get_int());
 	}
 
