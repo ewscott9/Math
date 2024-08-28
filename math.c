@@ -184,7 +184,7 @@ bool test_div_num_den(int a, int b)
     int r = a % b;
     int g = gcd(a, b);
     if (g != 1) {
-	printf("gcd(%d, %d) = ", r, b);
+	printf("gcd(%d, %d) = ", a, b);
 	x &= (g == get_int());
     }
 
