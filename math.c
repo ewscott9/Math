@@ -188,7 +188,7 @@ bool test_div_num_den(int a, int b)
     // avoid div by 0.
     if (b == 0) b++;
 
-    printf("%d / %d = \n", a, b);
+    printf("%d / %d\n", a, b);
     printf("quotient = ");
     x = (a / b == get_int());
 
