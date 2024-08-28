@@ -170,6 +170,42 @@ bool test_div(int a, int b)
     return x;
 }
 
+
+bool test_div_num_den(int a, int b)
+{
+    // integer division of a / b is trivial when a < b so avoid that case.
+    bool x = false;
+
+    /* shouldn't need this
+    if (abs(a) < abs(b))
+    {
+        int t = a;
+        a = b;
+        b = t;
+    }
+    */
+
+    // avoid div by 0.
+    if (b == 0) b++;
+
+    printf("%d / %d = ", a, b);
+    x = (a / b == get_int());
+
+    a = abs(a);
+    b = abs(b);
+    if (x && a % b != 0)
+    {
+	int r = a % b;
+        printf("remainder = ", a, b);
+        x &= (r == get_int());
+	printf("reduced numerator = ");
+        x &= (r / gcd(r,b) == get_int());
+	printf("reduced denominator = ");
+        x &= (b / gcd(r,b) == get_int());
+    }
+    return x;
+}
+
 // Generates a selection mask
 int test_option()
 {
@@ -265,7 +301,8 @@ void math_drill(int op_mask, int question_types, char* name, int left_min, int l
     fputs(stats, stdout);
 }
 
-void init_string(char* string, int string_size) {
+void init_string(char* string, int string_size) 
+{
     for (int i = 0; i < string_size; i++) 
     {
         string[i] = ' ';
