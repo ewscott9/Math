@@ -179,19 +179,19 @@ bool test_div_num_den(int a, int b)
     if (b == 0) b++;
 
 
-    printf("%d / %d\n", a, b);
+    printf("%d / %d:\n", a, b);
 
     int r = a % b;
     int g = gcd(a, b);
     if (g != 1 && g != b) 
     {
-	printf(" gcd(%d, %d) = ", a, b);
+	printf("> gcd(%d, %d) = ", a, b);
 	x &= (g == get_int());
     }
 
     if (abs(a) >= abs(b) || a == 0)
     {
-    	printf(" quotient = ");
+    	printf("> quotient = ");
     	x &= (a / b == get_int());
     }
 
@@ -201,15 +201,15 @@ bool test_div_num_den(int a, int b)
     {
 	if (abs(a) > abs(b))
 	{
-	    printf(" remainder = ", a, b);
+	    printf("> remainder = ", a, b);
 	    x &= (r == get_int());
 	}
 
-	printf("frational part\n");
-	printf("  numerator = ");
+	printf("> frational part:\n");
+	printf(">> numerator = ");
         x &= ((r / g) == get_int());
 
-	printf("  denominator = ");
+	printf(">> denominator = ");
         x &= ((b / g) == get_int());
     }
     return x;
