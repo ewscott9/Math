@@ -183,7 +183,7 @@ bool test_div_num_den(int a, int b)
 
     int r = a % b;
     int g = gcd(a, b);
-    if (g != 1 && g != b) 
+    if (g != 1 && a != b) 
     {
 	printf("> gcd(%d, %d) = ", a, b);
 	x &= (g == get_int());
