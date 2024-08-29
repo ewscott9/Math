@@ -134,7 +134,7 @@ int gcd(int a, int b)
 
 bool test_gcd(int a, int b)
 {
-    printf("GCD(%d, %d) = ", a, b);
+    printf("gcd(%d, %d) = ", a, b);
     return gcd(a, b) == get_int();
 }
 
@@ -147,26 +147,24 @@ bool test_mul(int a, int b)
 bool test_div(int a, int b)
 {
     // integer division of a / b is trivial when a < b so avoid that case.
-    bool x = false;
-    if (abs(a) < abs(b))
-    {
-        int t = a;
-        a = b;
-        b = t;
-    }
+    bool x = true;
 
     // avoid div by 0.
     if (b == 0) b++;
 
     printf("%d / %d = ", a, b);
-    x = (a / b == get_int());
+    x &= (a / b == get_int());
 
     a = abs(a);
     b = abs(b);
-    if (x && a % b != 0)
+    int r = a % b;
+    if (x && r != 0)
     {
-        printf("%d mod %d = ", a, b);;
-        x &= (a % b == get_int());
+        printf("%d mod %d = ", a, b);
+        x &= (r == get_int());
+
+	printf("gcd(%d, %d) = ", r, b);
+        x &= (gcd(r, b));
     }
     return x;
 }
@@ -285,7 +283,7 @@ void math_drill(int op_mask, int question_types, char* name, int left_min, int l
         case 0b00001: answer = test_add(a, b); break;
         case 0b00010: answer = test_sub(a, b); break;
         case 0b00100: answer = test_mul(a, b); break;
-        case 0b01000: answer = test_div_num_den(a, b); break;
+        case 0b01000: answer = test_div(a, b); break;
         case 0b10000: answer = test_gcd(a, b); break;
         }
 
