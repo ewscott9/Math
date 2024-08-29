@@ -171,8 +171,11 @@ bool test_div(int a, int b)
         printf("%d mod %d = ", a, b);
         x &= (r == get_int());
 
-	printf("gcd(%d, %d) = ", r, b);
-        x &= (gcd(r, b));
+	if (gcd(r, b) != 1)
+	{
+	    printf("gcd(%d, %d) = ", r, b);
+	    x &= (gcd(r, b) == get_int());
+	}
     }
     return x;
 }
