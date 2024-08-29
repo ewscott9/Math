@@ -161,7 +161,7 @@ bool test_div(int a, int b)
     }
 
     printf("%d / %d = ", a, b);
-    x &= (floor(a / b) == get_int());
+    x &= (a / b == get_int());
 
     a = abs(a);
     b = abs(b);
