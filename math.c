@@ -5,6 +5,7 @@
 #include <stdbool.h>
 #include <string.h>
 #include <limits.h>
+#include <math.h>
 
 enum IO_Const
 {
@@ -146,19 +147,26 @@ bool test_mul(int a, int b)
 
 bool test_div(int a, int b)
 {
-    // integer division of a / b is trivial when a < b so avoid that case.
     bool x = true;
 
     // avoid div by 0.
     if (b == 0) b++;
 
+    // integer division of a / b is trivial when a < b so avoid that case.
+    if (abs(a) < abs(b))
+    {
+	int t = a;
+	a = b;
+	b = t;
+    }
+
     printf("%d / %d = ", a, b);
-    x &= (a / b == get_int());
+    x &= (floor(a / b) == get_int());
 
     a = abs(a);
     b = abs(b);
     int r = a % b;
-    if (x && r != 0)
+    if ((x == 1) && (r != 0))
     {
         printf("%d mod %d = ", a, b);
         x &= (r == get_int());

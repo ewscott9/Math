@@ -53,3 +53,6 @@ Eric: Wed Aug 28 13:53:24 2024: 20 correct in 13' 21". 1 answers per minute.
 Eric: Wed Aug 28 13:54:26 2024: 1 correct in 0' 3". 20 answers per minute.
 Eric: Wed Aug 28 16:00:20 2024: 4 correct in 1' 9". 3 answers per minute.
 Eric: Wed Aug 28 16:00:48 2024: 2 correct in 0' 19". 6 answers per minute.
+Eric: Thu Aug 29 08:30:01 2024: 6 correct in 0' 31". 11 answers per minute.
+Eric: Thu Aug 29 08:51:07 2024: 3 correct in 0' 19". 9 answers per minute.
+ewscott: Thu Aug 29 11:22:28 2024: 1 correct in 0' 9". 6 answers per minute.
