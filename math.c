@@ -149,9 +149,6 @@ bool test_div(int a, int b)
 {
     bool x = true;
 
-    // avoid div by 0.
-    if (b == 0) b++;
-
     // integer division of a / b is trivial when a < b so avoid that case.
     if (abs(a) < abs(b))
     {
@@ -159,6 +156,9 @@ bool test_div(int a, int b)
 	a = b;
 	b = t;
     }
+
+    // avoid div by 0.
+    if (b == 0) b++;
 
     printf("%d / %d = ", a, b);
     x &= (a / b == get_int());
