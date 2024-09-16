@@ -21,12 +21,25 @@ void clear_stdin()
 	do c = getchar(); while (c != EOF && c != '\n');
 }
 
+// get a string from input
 void get_string(char* out_string, int out_string_size)
 {
 	fgets(out_string, out_string_size, stdin);
 	int len = (int) strlen(out_string);
 	if (out_string[len - 1] == '\n') out_string[len - 1] = '\0';
 	else clear_stdin();
+}
+
+// returns a random value between a and b 
+int rand_range(int a, int b)
+{
+	if (a > b) 
+	{
+		int t = a;
+		a = b;
+		b = t;
+	}
+	return (rand() % (b - a + 1)) + a;
 }
 
 
@@ -114,9 +127,9 @@ int gcd(int a, int b)
 	a = abs(a); b = abs(b);
 	if (a < b)
 	{
-		int t = b;
-		b = a;
-		a = t;
+		int t = a;
+		a = b;
+		b = t;
 	}
 
 	while (b > 0)
@@ -145,18 +158,11 @@ bool test_mul(int a, int b)
 // divison test
 bool test_div(int a, int b)
 {
+	// keeps track of the correctness of the answer. 
 	bool x = true;
 
-	// integer division of a / b is trivial when a < b so avoid that case.
-	if (abs(a) < abs(b))
-	{
-		int t = a;
-		a = b;
-		b = t;
-	}
-
 	// avoid div by 0.
-	if (b == 0) b++;
+	if (b == 0) b = 1;
 
 	printf("%d / %d = ", a, b);
 	x &= (a / b == get_int());
@@ -164,17 +170,19 @@ bool test_div(int a, int b)
 	a = abs(a);
 	b = abs(b);
 	int r = a % b;
+	int gcd_rb = gcd(r,b);
 	if ((x == 1) && (r != 0))
 	{
-		printf("%d mod %d = ", a, b);
+		printf("remainder = ");
 		x &= (r == get_int());
 
-		if (gcd(r, b) != 1)
+		if ((x == 1) && (gcd_rb != 1)) 
 		{
 			printf("gcd(%d, %d) = ", r, b);
-			x &= (gcd(r, b) == get_int());
+			x &= (gcd_rb == get_int());
 		}
 	}
+
 	return x;
 }
 
@@ -206,12 +214,6 @@ void save_stats(char stats[], char filename[])
 		fclose(file);
 	}
 }
-
-int rand_range(int min, int max)
-{
-	return rand() % (max - min + 1) + min;
-}
-
 
 // Tests users arithmetic skills.
 void math_drill(int op_mask, int question_types, char* name, int left_min, int left_max, int right_min, int right_max, int questions_max, int show_stats)
