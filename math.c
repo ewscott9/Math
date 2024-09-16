@@ -161,28 +161,41 @@ bool test_div(int a, int b)
 	// keeps track of the correctness of the answer. 
 	bool x = true;
 
+	b = 0;
 	// avoid div by 0.
-	if (b == 0) b = 1;
-
-	printf("%d / %d = ", a, b);
-	x &= (a / b == get_int());
-
-	a = abs(a);
-	b = abs(b);
-	int r = a % b;
-	int gcd_rb = gcd(r,b);
-	if ((x == 1) && (r != 0))
+	if (b != 0) 
 	{
-		printf("remainder = ");
-		x &= (r == get_int());
+		printf("%d / %d = ", a, b);
+		x &= (a / b == get_int());
 
-		if ((x == 1) && (gcd_rb != 1)) 
+		a = abs(a);
+		b = abs(b);
+		int r = a % b;
+		int gcd_rb = gcd(r,b);
+		if ((x == 1) && (r != 0))
 		{
-			printf("gcd(%d, %d) = ", r, b);
-			x &= (gcd_rb == get_int());
+			printf("remainder = ");
+			x &= (r == get_int());
+
+			if ((x == 1) && (gcd_rb != 1)) 
+			{
+				printf("gcd(%d, %d) = ", r, b);
+				x &= (gcd_rb == get_int());
+			}
+		}
+	} else
+	{
+		const char * ans = "undefined";
+		enum {LEN = 10};
+		char s[LEN];
+		printf("%d / %d = ", a, b);
+		get_string(s, LEN);
+		
+		for (int i = 0; i < LEN; i++) 
+		{
+			x &= (ans[i] == s[i]);
 		}
 	}
-
 	return x;
 }
 
