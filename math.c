@@ -161,7 +161,6 @@ bool test_div(int a, int b)
 	// keeps track of the correctness of the answer. 
 	bool x = true;
 
-	b = 0;
 	// avoid div by 0.
 	if (b != 0) 
 	{
