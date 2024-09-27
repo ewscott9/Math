@@ -114,14 +114,14 @@ void prompt_test(int a, int b, char op)
 // addition test
 bool test_add(int a, int b)
 {
-	prompt_test(a, b, '+')
+	prompt_test(a, b, '+');
 	return a + b == get_int();
 }
 
 // subtraction test
 bool test_sub(int a, int b)
 {
-	prompt_test(a, b, '-')
+	prompt_test(a, b, '-');
 	return a - b == get_int();
 }
 
@@ -153,7 +153,7 @@ bool test_gcd(int a, int b)
 // multiplication test
 bool test_mul(int a, int b)
 {
-	prompt_test(a, b, '*')
+	prompt_test(a, b, '*');
 	return a * b == get_int();
 }
 
@@ -162,7 +162,7 @@ bool test_div(int a, int b)
 {
 	// keeps track of the correctness of the answer. 
 	bool x = true;
-	prompt_test(a, b, '/')
+	prompt_test(a, b, '/');
 
 	if (b != 0) {
 		x &= (a / b == get_int());
