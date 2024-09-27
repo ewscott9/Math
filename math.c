@@ -7,6 +7,7 @@
 #include <limits.h>
 #include <math.h>
 
+// constants used for file saves
 enum IO_Const
 {
 	MAX_READ = 20,
@@ -33,8 +34,7 @@ void get_string(char* out_string, int out_string_size)
 // returns a random value between a and b 
 int rand_range(int a, int b)
 {
-	if (a > b) 
-	{
+	if (a > b) {
 		int t = a;
 		a = b;
 		b = t;
@@ -66,8 +66,7 @@ int get_int()
 
 	//printf("%d, %d\n", negitive_number, positive_number); //debug
 
-	if (positive_number || negitive_number)
-	{
+	if (positive_number || negitive_number) {
 		if (text[strlen(text) - 1] != '\n') clear_stdin();
 		// if theres a number at the front of the string return that value
 		char* pend;
@@ -125,15 +124,13 @@ bool test_sub(int a, int b)
 int gcd(int a, int b)
 {
 	a = abs(a); b = abs(b);
-	if (a < b)
-	{
+	if (a < b) {
 		int t = a;
 		a = b;
 		b = t;
 	}
 
-	while (b > 0)
-	{
+	while (b > 0) {
 		int r = a % b;
 		a = b;
 		b = r;
@@ -160,40 +157,27 @@ bool test_div(int a, int b)
 {
 	// keeps track of the correctness of the answer. 
 	bool x = true;
+	printf("%d / %d = ", a, b);
 
-	// avoid div by 0.
-	if (b != 0) 
-	{
-		printf("%d / %d = ", a, b);
+	if (b != 0) {
 		x &= (a / b == get_int());
-
 		a = abs(a);
 		b = abs(b);
 		int r = a % b;
 		int gcd_rb = gcd(r,b);
-		if ((x == 1) && (r != 0))
-		{
+		if ((x == 1) && (r != 0)) {
 			printf("remainder = ");
 			x &= (r == get_int());
 
-			if ((x == 1) && (gcd_rb != 1)) 
-			{
-				printf("gcd(%d, %d) = ", r, b);
-				x &= (gcd_rb == get_int());
-			}
+			if ((x == 1) && (gcd_rb != 1)) x &= test_gcd(r, b);
 		}
-	} else
-	{
+	} else {
 		const char * ans = "undefined";
 		enum {LEN = 10};
 		char s[LEN];
-		printf("%d / %d = ", a, b);
 		get_string(s, LEN);
 		
-		for (int i = 0; i < LEN; i++) 
-		{
-			x &= (ans[i] == s[i]);
-		}
+		for (int i = 0; i < LEN; i++) x &= (ans[i] == s[i]);
 	}
 	return x;
 }
@@ -202,8 +186,7 @@ bool test_div(int a, int b)
 int test_option()
 {
 	int mask = 0;
-	do
-	{
+	do {
 		mask = prompt_int_ranged("Test Addition (1, 0): ", 0, 1);
 		mask += prompt_int_ranged("Test Subtraction (1, 0): ", 0, 1) << 1;
 		mask += prompt_int_ranged("Test Multiplication (1, 0): ", 0, 1) << 2;
@@ -220,8 +203,7 @@ void save_stats(char stats[], char filename[])
 {
 	FILE* file;
 	file = fopen(filename, "a");
-	if (file != NULL)
-	{
+	if (file != NULL) {
 		fputs(stats, file);
 		fclose(file);
 	}
@@ -239,8 +221,7 @@ void math_drill(int op_mask, int question_types, char* name, int left_min, int l
 	if (questions_max > 0) printf("\nPlease complete the next %d questions:\n", questions_max);
 	else printf("\n");
 
-	for (bool answer = true; answer == true && (questions_max == 0 || c != questions_max);)
-	{
+	for (bool answer = true; answer == true && (questions_max == 0 || c != questions_max);) {
 		int a = rand_range(left_min, left_max);
 		int b = rand_range(right_min, right_max);
 
@@ -251,8 +232,7 @@ void math_drill(int op_mask, int question_types, char* name, int left_min, int l
 		do op = 1 << (rand() % question_types); 
 		while ((op & op_mask) == 0);
 
-		switch (op)
-		{
+		switch (op) {
 		case 0b00001: answer = test_add(a, b); break;
 		case 0b00010: answer = test_sub(a, b); break;
 		case 0b00100: answer = test_mul(a, b); break;
@@ -260,8 +240,7 @@ void math_drill(int op_mask, int question_types, char* name, int left_min, int l
 		case 0b10000: answer = test_gcd(a, b); break;
 		}
 
-		if (answer)
-		{
+		if (answer) {
 			c++;
 			t_now = time(NULL);
 
@@ -269,9 +248,11 @@ void math_drill(int op_mask, int question_types, char* name, int left_min, int l
 			t_delta = (int)(t_now - t) + 1;
 
 
-			if (show_stats != 0 && c % show_stats == 0) 
-			{
-				printf("\n%d correct in %d\' %d\". %d answers per minute.\n", c, t_delta / 60, t_delta % 60, 60 * c / t_delta);
+			if (show_stats != 0 && c % show_stats == 0) {
+				printf(
+					"\n%d correct in %d\' %d\". %d answers per minute.\n", 
+					c, t_delta / 60, t_delta % 60, 60 * c / t_delta
+				);
 			}
 
 		}
@@ -285,7 +266,11 @@ void math_drill(int op_mask, int question_types, char* name, int left_min, int l
 	// Save stats to file and print it to cmd
 	enum { STATS_SIZE = 400 };
 	char stats[STATS_SIZE];
-	snprintf(stats, STATS_SIZE, "%s: %s: %d correct in %d\' %d\". %d answers per minute.\n", name, timestamp, c, t_delta / 60, t_delta % 60, 60 * c / t_delta);
+	snprintf(
+		stats, STATS_SIZE, 
+		"%s: %s: %d correct in %d\' %d\". %d answers per minute.\n", 
+		name, timestamp, c, t_delta / 60, t_delta % 60, 60 * c / t_delta
+	);
 	save_stats(stats, "stats.txt");
 	printf("\n");
 	fputs(stats, stdout);
@@ -293,8 +278,7 @@ void math_drill(int op_mask, int question_types, char* name, int left_min, int l
 
 void init_string(char* string, int string_size) 
 {
-	for (int i = 0; i < string_size; i++) 
-	{
+	for (int i = 0; i < string_size; i++) {
 		string[i] = ' ';
 	}
 	string[string_size - 1] = '\0';
@@ -317,13 +301,21 @@ int main()
 	init_string(name, NAME_SIZE);
 
 	prompt_string("Enter Your Name: ", name, NAME_SIZE);
-	do
-	{
-		options = prompt_int("Quit (0), Start (1), Test Options (2), Number Min (3), Number Max (4), Question Limit (5), Show Stats (6), Change Name (7): ");
-		switch (options)
-		{
-		case 0: printf("Goodbye!\n"); break;
-		case 1: math_drill(op_mask, QUESTION_TYPES, name, left_min, left_max, right_min, right_max, questions_max, show_stats); break;
+	do {
+		options = prompt_int(
+			"(0) Quit,	(1) Start,	(2) Test Options,\n"
+			"(3) Min,	(4) Max,	(5) Question Limit,\n"
+			"(6) Stats,	(7) Edit Name: "
+		);
+
+		switch (options) {
+		case 0:	printf("Goodbye!\n"); break;
+		case 1:	math_drill(
+				op_mask, QUESTION_TYPES, name, 
+				left_min, left_max, right_min, 
+				right_max, questions_max, show_stats
+			); 
+			break;
 		case 2: op_mask = test_option(); break;
 		case 3: left_min = prompt_int("Left Min: "); right_min = prompt_int("Right Min: "); break;
 		case 4: left_max = prompt_int("Left Max: "); right_max = prompt_int("Right Max: "); break;
