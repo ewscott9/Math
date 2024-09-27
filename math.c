@@ -106,17 +106,22 @@ void prompt_string(const char* prompt, char* out_string, int out_string_size)
 	get_string(out_string, out_string_size);
 }
 
+void prompt_test(int a, int b, char op)
+{
+	if (b < 0) printf("%d %c (%d) = ", a, op, b);
+	else printf("%d %c %d = ", a, op, b);
+}
 // addition test
 bool test_add(int a, int b)
 {
-	printf("%d + %d = ", a, b);
+	prompt_test(a, b, '+')
 	return a + b == get_int();
 }
 
 // subtraction test
 bool test_sub(int a, int b)
 {
-	printf("%d - %d = ", a, b);
+	prompt_test(a, b, '-')
 	return a - b == get_int();
 }
 
@@ -148,7 +153,7 @@ bool test_gcd(int a, int b)
 // multiplication test
 bool test_mul(int a, int b)
 {
-	printf("%d * %d = ", a, b);
+	prompt_test(a, b, '*')
 	return a * b == get_int();
 }
 
@@ -157,7 +162,7 @@ bool test_div(int a, int b)
 {
 	// keeps track of the correctness of the answer. 
 	bool x = true;
-	printf("%d / %d = ", a, b);
+	prompt_test(a, b, '/')
 
 	if (b != 0) {
 		x &= (a / b == get_int());
