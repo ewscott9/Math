@@ -181,9 +181,8 @@ int div_reduce(int a, int b)
 		x &= a / gcd_ab == abs(n);
 		x &= b / gcd_ab == abs(d);
 		x &= sign_result == sign(n) * sign(d);
-	} else {
-		x &= sign_result * a / gcd_ab == n;
-	}
+	} else x &= sign_result * a / gcd_ab == n;
+
 	return x;
 }
 
@@ -191,7 +190,6 @@ int div_remainder(int a, int b)
 {
 	printf("remainder = ");
 	return abs(a) % abs(b) == get_int();
-	
 }
 
 int div_proper(int a, int b)
