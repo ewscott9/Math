@@ -128,7 +128,8 @@ bool test_sub(int a, int b)
 // calculate the greatest common divisor
 int gcd(int a, int b)
 {
-	a = abs(a); b = abs(b);
+	a = abs(a);
+	b = abs(b);
 	if (a < b) {
 		int t = a;
 		a = b;
@@ -136,9 +137,8 @@ int gcd(int a, int b)
 	}
 
 	while (b > 0) {
-		int r = a % b;
 		a = b;
-		b = r;
+		b = a % b; 
 	}
 	return a;
 }
@@ -157,6 +157,11 @@ bool test_mul(int a, int b)
 	return a * b == get_int();
 }
 
+int sign(int a)
+{
+	return (a > 0) - (a < 0);
+}
+
 // divison test
 bool test_div(int a, int b)
 {
@@ -166,15 +171,20 @@ bool test_div(int a, int b)
 
 	if (b != 0) {
 		x &= (a / b == get_int());
+		int s = sign(a) * sign(b);
 		a = abs(a);
 		b = abs(b);
 		int r = a % b;
 		int gcd_rb = gcd(r,b);
 		if ((x == 1) && (r != 0)) {
 			printf("remainder = ");
-			x &= (r == get_int());
-
-			if ((x == 1) && (gcd_rb != 1)) x &= test_gcd(r, b);
+			x &= r == get_int();
+			x &= test_gcd(r, b);
+			printf("numerator = ");
+			if (a < b) x &= (s * r / gcd_rb == get_int());
+			else x &= (r / gcd_rb == get_int());
+			printf("denominator = ");
+			x &= (b / gcd_rb == get_int());
 		}
 	} else {
 		const char * ans = "undefined";
