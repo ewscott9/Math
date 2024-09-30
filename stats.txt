@@ -55,3 +55,6 @@ Eric: Mon Sep 30 10:13:30 2024: 3 correct in 0' 25". 7 answers per minute.
 Eric: Mon Sep 30 10:14:53 2024: 0 correct in 0' 1". 0 answers per minute.
 Eric: Mon Sep 30 10:15:19 2024: 1 correct in 0' 6". 10 answers per minute.
 Eric: Mon Sep 30 10:18:04 2024: 0 correct in 0' 1". 0 answers per minute.
+Eric: Mon Sep 30 10:29:52 2024: 20 correct in 1' 20". 15 answers per minute.
+Eric: Mon Sep 30 10:31:19 2024: 16 correct in 1' 18". 12 answers per minute.
+Eric: Mon Sep 30 10:33:56 2024: 20 correct in 2' 24". 8 answers per minute.
