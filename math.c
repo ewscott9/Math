@@ -305,14 +305,11 @@ void math_drill(
 			// Let the player know some stats every 10 questions
 			t_delta = (int)(t_now - t) + 1;
 
-
-			if (show_stats != 0 && c % show_stats == 0) {
+			if (show_stats != 0 && c % show_stats == 0) 
 				printf(
 					"\n%d correct in %d\' %d\". %d answers per minute.\n", 
 					c, t_delta / 60, t_delta % 60, 60 * c / t_delta
 				);
-			}
-
 		}
 	}
 
@@ -345,7 +342,7 @@ void init_string(char* string, int string_size)
 int main()
 {
 	printf("Welcome to Math Drills!\n");
-	int op_mask = 0b01000;
+	int op_mask = 0b01111;
 	int left_min = -10;
 	int left_max = 10;
 	int right_min = -10;
@@ -369,7 +366,8 @@ int main()
 
 		switch (options) {
 		case 0:	printf("Goodbye!\n"); break;
-		case 1:	math_drill(
+		case 1:	
+			math_drill(
 				op_mask, QUESTION_TYPES, name, 
 				left_min, left_max, right_min, 
 				right_max, questions_max, show_stats,
@@ -382,7 +380,8 @@ int main()
 		case 5: questions_max = prompt_int("Question Limit (0 to disable): "); break;
 		case 6: show_stats = prompt_int("Show stats after every X questions (0 to disable): "); break;
 		case 7: prompt_string("Enter Your Name: ", name, NAME_SIZE); break;
-		case 8: div_options = prompt_int(
+		case 8: 
+			div_options = prompt_int(
 				"(0) integer with remainder, (1) proper fraction, (2) improper fraction: "
 			);
 			break;
