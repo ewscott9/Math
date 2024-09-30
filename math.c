@@ -158,42 +158,79 @@ bool test_mul(int a, int b)
 	return a * b == get_int();
 }
 
+// returns the sign (1, -1, or 0) of a
 int sign(int a)
 {
 	return (a > 0) - (a < 0);
 }
 
-// divison test
-bool test_div(int a, int b)
+int div_reduce(int a, int b)
+{
+	bool x = true;
+	int sign_result = sign(a) * sign(b);
+	a = abs(a);
+	b = abs(b);
+	int gcd_ab = gcd(a, b);
+	x &= test_gcd(a, b);
+
+	printf("numerator = ");
+	int n = get_int();
+	if (a % b != 0) {
+		printf("denominator = ");
+		int d = get_int();
+		x &= a / gcd_ab == abs(n);
+		x &= b / gcd_ab == abs(d);
+		x &= sign_result == sign(n) * sign(d);
+	} else {
+		x &= sign_result * a / gcd_ab == n;
+	}
+	return x;
+}
+
+int div_remainder(int a, int b)
+{
+	printf("remainder = ");
+	return abs(a) % abs(b) == get_int();
+	
+}
+
+int div_proper(int a, int b)
+{
+	bool x = true;
+	int sign_result = sign(a) * sign(b);
+	a = abs(a);
+	b = abs(b);
+	int r = a % b;
+	x &= div_remainder(a, b);
+	if (a < b) x &= div_reduce(r, sign_result  * b);
+	else x &= div_reduce(r, b);
+	return x;
+}
+
+// divison test. Options (0: remainder, 1: proper, 2: improper)
+bool test_div(int a, int b, int div_options)
 {
 	// keeps track of the correctness of the answer. 
 	bool x = true;
 	prompt_test(a, b, '/');
 
-	if (b != 0) {
-		x &= (a / b == get_int());
-		int s = sign(a) * sign(b);
-		a = abs(a);
-		b = abs(b);
-		int r = a % b;
-		int gcd_rb = gcd(r,b);
-		if ((x == 1) && (r != 0)) {
-			printf("remainder = ");
-			x &= r == get_int();
-			x &= test_gcd(r, b);
-			printf("numerator = ");
-			if (a < b) x &= (s * r / gcd_rb == get_int());
-			else x &= (r / gcd_rb == get_int());
-			printf("denominator = ");
-			x &= (b / gcd_rb == get_int());
-		}
-	} else {
+	if (b == 0) {
 		const char * ans = "undefined";
 		enum {LEN = 10};
 		char s[LEN];
 		get_string(s, LEN);
 		
-		for (int i = 0; i < LEN; i++) x &= (ans[i] == s[i]);
+		for (int i = 0; i < LEN; i++) x &= ans[i] == s[i];
+
+	} else if (div_options == 2) {
+		x = div_reduce(a, b);
+	} else {
+		// get the whole part of the result
+		x = (int) (a / b) == get_int();
+
+		if ((x == 0) || (a % b == 0)) ; // do nothing if the answer was wrong, or b devides a
+		else if (div_options = 0) x &= div_remainder(a, b);
+		else if (div_options = 1) x &= div_proper(a, b);
 	}
 	return x;
 }
@@ -226,7 +263,12 @@ void save_stats(char stats[], char filename[])
 }
 
 // Tests users arithmetic skills.
-void math_drill(int op_mask, int question_types, char* name, int left_min, int left_max, int right_min, int right_max, int questions_max, int show_stats)
+void math_drill(
+	int op_mask, int question_types, char* name, 
+	int left_min, int left_max, int right_min, 
+	int right_max, int questions_max, int show_stats,
+	int div_options
+)
 {
 	int c = 0;
 	time_t t = time(NULL);
@@ -252,7 +294,7 @@ void math_drill(int op_mask, int question_types, char* name, int left_min, int l
 		case 0b00001: answer = test_add(a, b); break;
 		case 0b00010: answer = test_sub(a, b); break;
 		case 0b00100: answer = test_mul(a, b); break;
-		case 0b01000: answer = test_div(a, b); break;
+		case 0b01000: answer = test_div(a, b, div_options); break;
 		case 0b10000: answer = test_gcd(a, b); break;
 		}
 
@@ -303,14 +345,15 @@ void init_string(char* string, int string_size)
 int main()
 {
 	printf("Welcome to Math Drills!\n");
-	int op_mask = 0b01111;
-	int left_min = 0;
+	int op_mask = 0b01000;
+	int left_min = -10;
 	int left_max = 10;
-	int right_min = 0;
+	int right_min = -10;
 	int right_max = 10;
 	int questions_max = 20;
 	int options = 0;
 	int show_stats = 10;
+	int div_options = 1;
 	enum { NAME_SIZE = 50 };
 	char name[NAME_SIZE] = "";
 	enum { QUESTION_TYPES = 5 };
@@ -321,7 +364,7 @@ int main()
 		options = prompt_int(
 			"(0) Quit,	(1) Start,	(2) Test Options,\n"
 			"(3) Min,	(4) Max,	(5) Question Limit,\n"
-			"(6) Stats,	(7) Edit Name: "
+			"(6) Stats,	(7) Edit Name,	(8) Division Options: "
 		);
 
 		switch (options) {
@@ -329,7 +372,8 @@ int main()
 		case 1:	math_drill(
 				op_mask, QUESTION_TYPES, name, 
 				left_min, left_max, right_min, 
-				right_max, questions_max, show_stats
+				right_max, questions_max, show_stats,
+				div_options
 			); 
 			break;
 		case 2: op_mask = test_option(); break;
@@ -338,6 +382,10 @@ int main()
 		case 5: questions_max = prompt_int("Question Limit (0 to disable): "); break;
 		case 6: show_stats = prompt_int("Show stats after every X questions (0 to disable): "); break;
 		case 7: prompt_string("Enter Your Name: ", name, NAME_SIZE); break;
+		case 8: div_options = prompt_int(
+				"(0) integer with remainder, (1) proper fraction, (2) improper fraction: "
+			);
+			break;
 		default: printf("(invalid input)\n");
 		}
 	} while (options != 0);
