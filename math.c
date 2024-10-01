@@ -102,7 +102,7 @@ void prompt_string(const char* prompt, char* out_string, int out_string_size)
 void prompt_test(int a, int b, char op, char eq)
 {
 	if (b < 0) printf("%d %c (%d) %c ", a, op, b, eq);
-	else printf("%d %c %d %c ", a, op, b);
+	else printf("%d %c %d %c ", a, op, b, eq);
 }
 // addition test
 bool test_add(int a, int b)
@@ -161,7 +161,7 @@ int div_reduce(int a, int b)
 {
 	bool x = true;
 
-	printf("reduce", a, b);
+	printf("reduce");
 	prompt_test(a, b, '/', ':');
 	int sign_result = sign(a) * sign(b);
 	a = abs(a);
@@ -228,8 +228,8 @@ bool test_div(int a, int b, int div_options)
 		x = (int) (a / b) == get_int();
 
 		if ((x == 0) || (a % b == 0)) ; // do nothing
-		else if (div_options = 0) x &= div_remainder(a, b);
-		else if (div_options = 1) x &= div_proper(a, b);
+		else if (div_options == 0) x &= div_remainder(a, b);
+		else if (div_options == 1) x &= div_proper(a, b);
 	}
 	return x;
 }
