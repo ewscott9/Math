@@ -2,8 +2,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <time.h>
-#include <stdbool.h>
 #include <string.h>
+#include <stdbool.h>
 #include <limits.h>
 #include <math.h>
 
@@ -54,8 +54,6 @@ int get_int()
 	char text[READ_SIZE] = "";
 	fgets(text, READ_SIZE, stdin);
 
-	//printf("%i\n", (int) strlen(text)); //debug
-
 	// if the text that was read in doesn't start with a number, just return INT_MIN
 	int value = INT_MIN;
 	bool negitive_number = false;
@@ -64,8 +62,6 @@ int get_int()
 	if (strlen(text) >= 2) negitive_number = (text[0] == '-' && text[1] >= '0' && text[1] <= '9');
 	positive_number = text[0] >= '0' && text[0] <= '9';
 
-	//printf("%d, %d\n", negitive_number, positive_number); //debug
-
 	if (positive_number || negitive_number) {
 		if (text[strlen(text) - 1] != '\n') clear_stdin();
 		// if theres a number at the front of the string return that value
@@ -73,15 +69,6 @@ int get_int()
 		value = (int)strtol(text, &pend, 0);
 		if (value == 0 && pend[0] != '\n') value = INT_MIN;
 	}
-	return value;
-}
-
-// gets int value and can set max and min value that int can be.
-int get_int_ranged(int min, int max)
-{
-	int value = get_int();
-	if (value < min) value = min;
-	if (value > max) value = max;
 	return value;
 }
 
@@ -96,7 +83,13 @@ int prompt_int(const char* text)
 int prompt_int_ranged(const char* text, int min, int max)
 {
 	fputs(text, stdout);
-	return get_int_ranged(min, max);
+	int value = get_int();
+	while (value < min || value > max) {
+		printf("(invalid input)\n");
+		fputs(text, stdout);
+		value = get_int();
+	}
+	return value;
 }
 
 // prints a message, receives an input, and returns a number.
@@ -106,23 +99,30 @@ void prompt_string(const char* prompt, char* out_string, int out_string_size)
 	get_string(out_string, out_string_size);
 }
 
-void prompt_test(int a, int b, char op)
+void prompt_test(int a, int b, char op, char eq)
 {
-	if (b < 0) printf("%d %c (%d) = ", a, op, b);
-	else printf("%d %c %d = ", a, op, b);
+	if (b < 0) printf("%d %c (%d) %c ", a, op, b, eq);
+	else printf("%d %c %d %c ", a, op, b);
 }
 // addition test
 bool test_add(int a, int b)
 {
-	prompt_test(a, b, '+');
+	prompt_test(a, b, '+', '=');
 	return a + b == get_int();
 }
 
 // subtraction test
 bool test_sub(int a, int b)
 {
-	prompt_test(a, b, '-');
+	prompt_test(a, b, '-', '=');
 	return a - b == get_int();
+}
+
+// multiplication test
+bool test_mul(int a, int b)
+{
+	prompt_test(a, b, '*', '=');
+	return a * b == get_int();
 }
 
 // calculate the greatest common divisor
@@ -151,14 +151,7 @@ bool test_gcd(int a, int b)
 	return gcd(a, b) == get_int();
 }
 
-// multiplication test
-bool test_mul(int a, int b)
-{
-	prompt_test(a, b, '*');
-	return a * b == get_int();
-}
-
-// returns the sign (1, -1, or 0) of a
+// returns thesign (1, -1, or 0) of "a"
 int sign(int a)
 {
 	return (a > 0) - (a < 0);
@@ -167,9 +160,13 @@ int sign(int a)
 int div_reduce(int a, int b)
 {
 	bool x = true;
+
+	printf("reduce", a, b);
+	prompt_test(a, b, '/', ':');
 	int sign_result = sign(a) * sign(b);
 	a = abs(a);
 	b = abs(b);
+	
 	int gcd_ab = gcd(a, b);
 	x &= test_gcd(a, b);
 
@@ -200,7 +197,7 @@ int div_proper(int a, int b)
 	b = abs(b);
 	int r = a % b;
 	x &= div_remainder(a, b);
-	if (a < b) x &= div_reduce(r, sign_result  * b);
+	if (a < b) x &= div_reduce(sign_result * r, b);
 	else x &= div_reduce(r, b);
 	return x;
 }
@@ -210,8 +207,8 @@ bool test_div(int a, int b, int div_options)
 {
 	// keeps track of the correctness of the answer. 
 	bool x = true;
-	prompt_test(a, b, '/');
 
+	// if you devide by 0
 	if (b == 0) {
 		const char * ans = "undefined";
 		enum {LEN = 10};
@@ -220,13 +217,17 @@ bool test_div(int a, int b, int div_options)
 		
 		for (int i = 0; i < LEN; i++) x &= ans[i] == s[i];
 
-	} else if (div_options == 2) {
-		x = div_reduce(a, b);
-	} else {
+	// if the reduce only flag is set
+	} else if (div_options == 2) x = div_reduce(a, b);
+
+	// if the remainder or proper flags are set.
+	else {
 		// get the whole part of the result
+		prompt_test(a, b, '/', '=');
+		printf("(whole part) ");
 		x = (int) (a / b) == get_int();
 
-		if ((x == 0) || (a % b == 0)) ; // do nothing if the answer was wrong, or b devides a
+		if ((x == 0) || (a % b == 0)) ; // do nothing
 		else if (div_options = 0) x &= div_remainder(a, b);
 		else if (div_options = 1) x &= div_proper(a, b);
 	}
@@ -349,21 +350,24 @@ int main()
 	int options = 0;
 	int show_stats = 10;
 	int div_options = 1;
-	enum { NAME_SIZE = 50 };
+	enum { 
+		NAME_SIZE = 50,
+		QUESTION_TYPES = 5,
+		QUIT = -1
+	};
 	char name[NAME_SIZE] = "";
-	enum { QUESTION_TYPES = 5 };
 	init_string(name, NAME_SIZE);
-
+		
 	prompt_string("Enter Your Name: ", name, NAME_SIZE);
 	do {
 		options = prompt_int(
-			"(0) Quit,	(1) Start,	(2) Test Options,\n"
+			"(-1) Quit,	(1) Start,	(2) Test Options,\n"
 			"(3) Min,	(4) Max,	(5) Question Limit,\n"
 			"(6) Stats,	(7) Edit Name,	(8) Division Options: "
 		);
 
 		switch (options) {
-		case 0:	printf("Goodbye!\n"); break;
+		case QUIT: printf("Goodbye!\n"); break;
 		case 1:	
 			math_drill(
 				op_mask, QUESTION_TYPES, name, 
@@ -379,11 +383,12 @@ int main()
 		case 6: show_stats = prompt_int("Show stats after every X questions (0 to disable): "); break;
 		case 7: prompt_string("Enter Your Name: ", name, NAME_SIZE); break;
 		case 8: 
-			div_options = prompt_int(
-				"(0) integer with remainder, (1) proper fraction, (2) improper fraction: "
+			div_options = prompt_int_ranged(
+				"(0) integer with remainder, (1) proper fraction, (2) reduce only: ",
+				0,2
 			);
 			break;
 		default: printf("(invalid input)\n");
 		}
-	} while (options != 0);
+	} while (options != QUIT);
 }
