@@ -1,7 +1,9 @@
-CFLAGS=-Wall -g
+SOURCE_FILES = math.c my_io.c
+CC = gcc
+CFLAGS = -Wall -g
 
 all:
-	make math
+	$(CC) $(CFLAGS) $(SOURCE_FILES) -o math
 
 clean: 
 	rm -f math stats.txt

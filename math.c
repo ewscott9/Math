@@ -1,4 +1,6 @@
 // Very simple command line arithmatic drills
+#include "my_io.h"
+#include "math.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <time.h>
@@ -7,121 +9,31 @@
 #include <limits.h>
 #include <math.h>
 
-// constants used for file saves
-enum IO_Const
+// a prompt for each test. checks negative numbers on b, and puts "()" around them.
+void prompt_test(int a, int b, char op, const char* eq)
 {
-	MAX_READ = 20,
-	MAX_WRITE = 200
-};
-
-// clears stdin
-// used after getting numbers from stdin, incase user accidentally entered non numeric characters after
-void clear_stdin()
-{
-	char c = '\0';
-	do c = getchar(); while (c != EOF && c != '\n');
+	if (b < 0) printf("%d %c (%d)%s", a, op, b, eq);
+	else printf("%d %c %d%s", a, op, b, eq);
 }
 
-// get a string from input
-void get_string(char* out_string, int out_string_size)
-{
-	fgets(out_string, out_string_size, stdin);
-	int len = (int) strlen(out_string);
-	if (out_string[len - 1] == '\n') out_string[len - 1] = '\0';
-	else clear_stdin();
-}
-
-// returns a random value between a and b 
-int rand_range(int a, int b)
-{
-	if (a > b) {
-		int t = a;
-		a = b;
-		b = t;
-	}
-	return (rand() % (b - a + 1)) + a;
-}
-
-
-// gets int value, and clears stdin afterwards
-// if input starts with a number, reads input until READ_SIZE - 1 characters or a non number and returns the number or LONG_MIN or LONG_MAX if number was too large
-// if input starts with a letter, returns INT_MIN.
-int get_int()
-{
-	enum { READ_SIZE = MAX_READ };
-
-	// grab characters from stdin, if you can't get them all in one go, throw the rest away.
-	char text[READ_SIZE] = "";
-	fgets(text, READ_SIZE, stdin);
-
-	// if the text that was read in doesn't start with a number, just return INT_MIN
-	int value = INT_MIN;
-	bool negitive_number = false;
-	bool positive_number = false;
-
-	if (strlen(text) >= 2) negitive_number = (text[0] == '-' && text[1] >= '0' && text[1] <= '9');
-	positive_number = text[0] >= '0' && text[0] <= '9';
-
-	if (positive_number || negitive_number) {
-		if (text[strlen(text) - 1] != '\n') clear_stdin();
-		// if theres a number at the front of the string return that value
-		char* pend;
-		value = (int)strtol(text, &pend, 0);
-		if (value == 0 && pend[0] != '\n') value = INT_MIN;
-	}
-	return value;
-}
-
-// prints a message, receives an input, and returns a number.
-int prompt_int(const char* text)
-{
-	fputs(text, stdout);
-	return get_int();
-}
-
-// prints a message, receives an input, and returns a number.
-int prompt_int_ranged(const char* text, int min, int max)
-{
-	fputs(text, stdout);
-	int value = get_int();
-	while (value < min || value > max) {
-		printf("(invalid input)\n");
-		fputs(text, stdout);
-		value = get_int();
-	}
-	return value;
-}
-
-// prints a message, receives an input, and returns a number.
-void prompt_string(const char* prompt, char* out_string, int out_string_size)
-{
-	fputs(prompt, stdout);
-	get_string(out_string, out_string_size);
-}
-
-void prompt_test(int a, int b, char op, char eq)
-{
-	if (b < 0) printf("%d %c (%d) %c ", a, op, b, eq);
-	else printf("%d %c %d %c ", a, op, b, eq);
-}
 // addition test
 bool test_add(int a, int b)
 {
-	prompt_test(a, b, '+', '=');
+	prompt_test(a, b, '+', " = ");
 	return a + b == get_int();
 }
 
 // subtraction test
 bool test_sub(int a, int b)
 {
-	prompt_test(a, b, '-', '=');
+	prompt_test(a, b, '-', " = ");
 	return a - b == get_int();
 }
 
 // multiplication test
 bool test_mul(int a, int b)
 {
-	prompt_test(a, b, '*', '=');
+	prompt_test(a, b, '*', " = ");
 	return a * b == get_int();
 }
 
@@ -152,17 +64,19 @@ bool test_gcd(int a, int b)
 }
 
 // returns thesign (1, -1, or 0) of "a"
-int sign(int a)
+int sign(int x)
 {
-	return (a > 0) - (a < 0);
+	return (x > 0) - (x < 0);
 }
 
+// tests ability to reduce a fraction
 int div_reduce(int a, int b)
 {
 	bool x = true;
 
-	printf("reduce");
-	prompt_test(a, b, '/', ':');
+	printf("reduce ");
+	prompt_test(a, b, '/', ":\n");
+
 	int sign_result = sign(a) * sign(b);
 	a = abs(a);
 	b = abs(b);
@@ -183,12 +97,14 @@ int div_reduce(int a, int b)
 	return x;
 }
 
+// tests ability to find the remainder of integer division
 int div_remainder(int a, int b)
 {
 	printf("remainder = ");
 	return abs(a) % abs(b) == get_int();
 }
 
+// tests the ability to find the proper fraction form of a division operation.
 int div_proper(int a, int b)
 {
 	bool x = true;
@@ -202,15 +118,17 @@ int div_proper(int a, int b)
 	return x;
 }
 
+
 // divison test. Options (0: remainder, 1: proper, 2: improper)
-bool test_div(int a, int b, int div_options)
+enum div_options { REMAINDER, PROPER, REDUCE };
+bool test_div(int a, int b, enum div_options option)
 {
 	// keeps track of the correctness of the answer. 
 	bool x = true;
 
 	// if you devide by 0
 	if (b == 0) {
-		const char * ans = "undefined";
+		const char* ans = "undefined";
 		enum {LEN = 10};
 		char s[LEN];
 		get_string(s, LEN);
@@ -218,24 +136,23 @@ bool test_div(int a, int b, int div_options)
 		for (int i = 0; i < LEN; i++) x &= ans[i] == s[i];
 
 	// if the reduce only flag is set
-	} else if (div_options == 2) x = div_reduce(a, b);
+	} else if (option == REDUCE) x = div_reduce(a, b);
 
 	// if the remainder or proper flags are set.
 	else {
 		// get the whole part of the result
-		prompt_test(a, b, '/', '=');
-		printf("(whole part) ");
+		prompt_test(a, b, '/', " (whole part) = ");
 		x = (int) (a / b) == get_int();
 
 		if ((x == 0) || (a % b == 0)) ; // do nothing
-		else if (div_options == 0) x &= div_remainder(a, b);
-		else if (div_options == 1) x &= div_proper(a, b);
+		else if (option == REMAINDER) x &= div_remainder(a, b);
+		else if (option == PROPER) x &= div_proper(a, b);
 	}
 	return x;
 }
 
 // Generates a selection mask
-int test_option()
+int test_option_mask()
 {
 	int mask = 0;
 	do {
@@ -251,7 +168,7 @@ int test_option()
 
 // saves stats to file
 #pragma warning (disable : 4996)
-void save_stats(char stats[], char filename[])
+void save_stats(char* stats, char* filename)
 {
 	FILE* file;
 	file = fopen(filename, "a");
@@ -289,6 +206,7 @@ void math_drill(
 		do op = 1 << (rand() % question_types); 
 		while ((op & op_mask) == 0);
 
+		// select the test based on the binary rep of op
 		switch (op) {
 		case 0b00001: answer = test_add(a, b); break;
 		case 0b00010: answer = test_sub(a, b); break;
@@ -338,32 +256,32 @@ void init_string(char* string, int string_size)
 	string[string_size - 1] = '\0';
 }
 
-int main()
+void menu() 
 {
 	printf("Welcome to Math Drills!\n");
-	int op_mask = 0b01111;
+	int op_mask = 0b01111; // used to mask specific test types
 	int left_min = -10;
 	int left_max = 10;
 	int right_min = -10;
 	int right_max = 10;
 	int questions_max = 20;
 	int options = 0;
-	int show_stats = 10;
-	int div_options = 1;
-	enum { 
-		NAME_SIZE = 50,
-		QUESTION_TYPES = 5,
-		QUIT = -1
-	};
+	int show_stats = 10; // show test stats every "show_stats" questions
+	int div_options = 1; // default divison test type is proper fractions
+	const int QUESTION_TYPES = 5;
+
+	enum { NAME_SIZE = 50 };
 	char name[NAME_SIZE] = "";
 	init_string(name, NAME_SIZE);
-		
 	prompt_string("Enter Your Name: ", name, NAME_SIZE);
+
+	enum { QUIT = -1 };
 	do {
+		printf("(%d) Quit,\t", QUIT);
 		options = prompt_int(
-			"(-1) Quit,	(1) Start,	(2) Test Options,\n"
-			"(3) Min,	(4) Max,	(5) Question Limit,\n"
-			"(6) Stats,	(7) Edit Name,	(8) Division Options: "
+			"(1) Start,\t(2) Test Options,\n"
+			"(3) Min,\t(4) Max,\t(5) Question Limit,\n"
+			"(6) Stats,\t(7) Edit Name,\t(8) Division Options: "
 		);
 
 		switch (options) {
@@ -376,7 +294,7 @@ int main()
 				div_options
 			); 
 			break;
-		case 2: op_mask = test_option(); break;
+		case 2: op_mask = test_option_mask(); break;
 		case 3: left_min = prompt_int("Left Min: "); right_min = prompt_int("Right Min: "); break;
 		case 4: left_max = prompt_int("Left Max: "); right_max = prompt_int("Right Max: "); break;
 		case 5: questions_max = prompt_int("Question Limit (0 to disable): "); break;
@@ -392,3 +310,10 @@ int main()
 		}
 	} while (options != QUIT);
 }
+
+int main()
+{
+	menu();
+	return 0;
+}
+
