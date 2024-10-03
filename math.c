@@ -118,7 +118,6 @@ int div_proper(int a, int b)
 	return x;
 }
 
-
 // divison test. Options (0: remainder, 1: proper, 2: improper)
 enum div_options { REMAINDER, PROPER, REDUCE };
 bool test_div(int a, int b, enum div_options option)

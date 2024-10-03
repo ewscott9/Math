@@ -1,3 +1,4 @@
+// some simple io commands to do things as safely as possible
 #include "my_io.h"
 #include <stdio.h>
 #include <stdlib.h>
