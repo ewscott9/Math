@@ -9,6 +9,17 @@
 #include <limits.h>
 #include <math.h>
 
+// returns a random value between a and b 
+int rand_range(int a, int b)
+{
+	if (a > b) {
+		int t = a;
+		a = b;
+		b = t;
+	}
+	return (rand() % (b - a + 1)) + a;
+}
+
 // a prompt for each test. checks negative numbers on b, and puts "()" around them.
 void prompt_test(int a, int b, char op, const char* eq)
 {

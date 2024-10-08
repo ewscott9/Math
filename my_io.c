@@ -24,16 +24,6 @@ void get_string(char* out_string, int out_string_size)
 	else clear_stdin();
 }
 
-// returns a random value between a and b 
-int rand_range(int a, int b)
-{
-	if (a > b) {
-		int t = a;
-		a = b;
-		b = t;
-	}
-	return (rand() % (b - a + 1)) + a;
-}
 
 
 // gets int value, and clears stdin afterwards

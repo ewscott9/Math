@@ -3,6 +3,7 @@
 
 #include <stdbool.h>
 
+int rand_range(int a, int b);
 void prompt_test(int a, int b, char op, const char* eq);
 bool test_add(int a, int b);
 bool test_sub(int a, int b);
