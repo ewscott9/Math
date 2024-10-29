@@ -198,12 +198,7 @@ void save_stats(char* stats, char* filename)
 }
 
 // Tests users arithmetic skills.
-void math_drill(
-	int op_mask, int question_types, char* name, 
-	int left_min, int left_max, int right_min, 
-	int right_max, int questions_max, int show_stats,
-	int div_options
-)
+void math_drill(struct settings s, char* name)
 {
 	int c = 0;
 	time_t t = time(NULL);
@@ -211,26 +206,26 @@ void math_drill(
 	int t_delta = 1;
 	srand((int)t);
 
-	if (questions_max > 0) printf("\nPlease complete the next %d questions:\n", questions_max);
+	if (s.questions_max > 0) printf("\nPlease complete the next %d questions:\n", s.questions_max);
 	else printf("\n");
 
-	for (bool answer = true; answer == true && (questions_max == 0 || c != questions_max);) {
-		int a = rand_range(left_min, left_max);
-		int b = rand_range(right_min, right_max);
+	for (bool answer = true; answer == true && (s.questions_max == 0 || c != s.questions_max);) {
+		int a = rand_range(s.left_min, s.left_max);
+		int b = rand_range(s.right_min, s.right_max);
 
 		//printf("%d, %d, %d, %d, a: %d, b: %d\n", left_min, left_max, right_min, right_max, a, b); // debug
 
 		// randomly choose a test based on option selection
 		int op = 0;
-		do op = 1 << (rand() % question_types); 
-		while ((op & op_mask) == 0);
+		do op = 1 << (rand() % s.question_types); 
+		while ((op & s.op_mask) == 0);
 
 		// select the test based on the binary rep of op
 		switch (op) {
 		case 0b00001: answer = test_add(a, b); break;
 		case 0b00010: answer = test_sub(a, b); break;
 		case 0b00100: answer = test_mul(a, b); break;
-		case 0b01000: answer = test_div(a, b, div_options); break;
+		case 0b01000: answer = test_div(a, b, s.div_options); break;
 		case 0b10000: answer = test_gcd(a, b); break;
 		}
 
@@ -241,7 +236,7 @@ void math_drill(
 			// Let the player know some stats every 10 questions
 			t_delta = (int)(t_now - t) + 1;
 
-			if (show_stats != 0 && c % show_stats == 0) 
+			if (s.show_stats != 0 && c % s.show_stats == 0) 
 				printf(
 					"\n%d correct in %d\' %d\". %d answers per minute.\n", 
 					c, t_delta / 60, t_delta % 60, 60 * c / t_delta
@@ -275,9 +270,14 @@ void init_string(char* string, int string_size)
 	string[string_size - 1] = '\0';
 }
 
+
+
+
 void menu() 
 {
 	printf("Welcome to Math Drills!\n");
+
+	/*
 	int op_mask = 0b01111; // used to mask specific test types
 	int left_min = -10;
 	int left_max = 10;
@@ -288,6 +288,21 @@ void menu()
 	int show_stats = 10; // show test stats every "show_stats" questions
 	int div_options = REMAINDER; // default divison test type is proper fractions
 	const int QUESTION_TYPES = 5;
+	*/
+
+
+	struct settings s;
+	
+	s.op_mask = 0b01111; // used to mask specific test types
+	s.left_min = -10;
+	s.left_max = 10;
+	s.right_min = -10;
+	s.right_max = 10;
+	s.questions_max = 20;
+	s.options = 0;
+	s.show_stats = 10; // show test stats every "show_stats" questions
+	s.div_options = REMAINDER; // default divison test type is proper fractions
+	s.question_types = 5;
 
 	enum { NAME_SIZE = 50 };
 	char name[NAME_SIZE] = "";
@@ -297,37 +312,32 @@ void menu()
 	enum { QUIT = -1 };
 	do {
 		printf("(%d) Quit,\t", QUIT);
-		options = prompt_int(
+		s.options = prompt_int(
 			"(1) Start,\t(2) Test Options,\n"
 			"(3) Min,\t(4) Max,\t(5) Question Limit,\n"
 			"(6) Stats,\t(7) Edit Name,\t(8) Division Options: "
 		);
 
-		switch (options) {
+		switch (s.options) {
 		case QUIT: printf("Goodbye!\n"); break;
 		case 1:	
-			math_drill(
-				op_mask, QUESTION_TYPES, name, 
-				left_min, left_max, right_min, 
-				right_max, questions_max, show_stats,
-				div_options
-			); 
+			math_drill(s, name); 
 			break;
-		case 2: op_mask = test_option_mask(); break;
-		case 3: left_min = prompt_int("Left Min: "); right_min = prompt_int("Right Min: "); break;
-		case 4: left_max = prompt_int("Left Max: "); right_max = prompt_int("Right Max: "); break;
-		case 5: questions_max = prompt_int("Question Limit (0 to disable): "); break;
-		case 6: show_stats = prompt_int("Show stats after every X questions (0 to disable): "); break;
+		case 2: s.op_mask = test_option_mask(); break;
+		case 3: s.left_min = prompt_int("Left Min: "); s.right_min = prompt_int("Right Min: "); break;
+		case 4: s.left_max = prompt_int("Left Max: "); s.right_max = prompt_int("Right Max: "); break;
+		case 5: s.questions_max = prompt_int("Question Limit (0 to disable): "); break;
+		case 6: s.show_stats = prompt_int("Show stats after every X questions (0 to disable): "); break;
 		case 7: prompt_string("Enter Your Name: ", name, NAME_SIZE); break;
 		case 8: 
-			div_options = prompt_int_ranged(
+			s.div_options = prompt_int_ranged(
 				"(0) integer with remainder, (1) proper fraction, (2) reduce only: ",
 				0,2
 			);
 			break;
 		default: printf("(invalid input)\n");
 		}
-	} while (options != QUIT);
+	} while (s.options != QUIT);
 }
 
 int main()
