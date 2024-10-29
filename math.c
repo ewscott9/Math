@@ -277,22 +277,7 @@ void menu()
 {
 	printf("Welcome to Math Drills!\n");
 
-	/*
-	int op_mask = 0b01111; // used to mask specific test types
-	int left_min = -10;
-	int left_max = 10;
-	int right_min = -10;
-	int right_max = 10;
-	int questions_max = 20;
-	int options = 0;
-	int show_stats = 10; // show test stats every "show_stats" questions
-	int div_options = REMAINDER; // default divison test type is proper fractions
-	const int QUESTION_TYPES = 5;
-	*/
-
-
 	struct settings s;
-	
 	s.op_mask = 0b01111; // used to mask specific test types
 	s.left_min = -10;
 	s.left_max = 10;
@@ -332,7 +317,7 @@ void menu()
 		case 8: 
 			s.div_options = prompt_int_ranged(
 				"(0) integer with remainder, (1) proper fraction, (2) reduce only: ",
-				0,2
+				REMAINDER, REDUCE
 			);
 			break;
 		default: printf("(invalid input)\n");
