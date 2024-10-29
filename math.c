@@ -95,15 +95,25 @@ int div_reduce(int a, int b)
 	int gcd_ab = gcd(a, b);
 	x &= test_gcd(a, b);
 
-	printf("numerator = ");
-	int n = get_int();
+	int n;
+	if (x) {
+		printf("numerator = ");
+		n = get_int();
+	}
+
 	if (a % b != 0) {
-		printf("denominator = ");
-		int d = get_int();
 		x &= a / gcd_ab == abs(n);
+		int d;
+		if (x) {
+			printf("denominator = ");
+			d = get_int();
+		}
 		x &= b / gcd_ab == abs(d);
 		x &= sign_result == sign(n) * sign(d);
-	} else x &= sign_result * a / gcd_ab == n;
+
+	} else {
+		x &= sign_result * a / gcd_ab == n;
+	}
 
 	return x;
 }
@@ -129,8 +139,7 @@ int div_proper(int a, int b)
 	return x;
 }
 
-// divison test. Options (0: remainder, 1: proper, 2: improper)
-enum div_options { REMAINDER, PROPER, REDUCE };
+// divison test. Options (0: REMAINDER, 1: PROPER, 2: IMPROPER)
 bool test_div(int a, int b, enum div_options option)
 {
 	// keeps track of the correctness of the answer. 
@@ -277,7 +286,7 @@ void menu()
 	int questions_max = 20;
 	int options = 0;
 	int show_stats = 10; // show test stats every "show_stats" questions
-	int div_options = 1; // default divison test type is proper fractions
+	int div_options = REMAINDER; // default divison test type is proper fractions
 	const int QUESTION_TYPES = 5;
 
 	enum { NAME_SIZE = 50 };

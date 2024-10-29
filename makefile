@@ -8,7 +8,7 @@ all:
 	$(CC) $(CFLAGS) $(SOURCE_FILES) -o $(APP_NAME)
 
 edit:
-	vim -u vimrc -p $(SOURCE_FILES) $(HEADER_FILES)
+	nvim -u vimrc -p $(SOURCE_FILES) $(HEADER_FILES)
 
 clean: 
 	rm -f $(APP_NAME)

@@ -14,7 +14,7 @@ int sign(int a);
 int div_reduce(int a, int b);
 int div_remainder(int a, int b);
 int div_proper(int a, int b);
-enum div_options;
+enum div_options { REMAINDER, PROPER, REDUCE };
 bool test_div(int a, int b, enum div_options option);
 void save_stats(char* stats, char* filename);
 void math_drill(
